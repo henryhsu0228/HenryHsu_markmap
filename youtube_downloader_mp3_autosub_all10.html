@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>在 Windows 11 上安裝與運行 YouTube 下載器與 Whisper 轉錄器的指南</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            background-color: #f9f9f9;
+            color: #333;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        code {
+            background-color: #eee;
+            padding: 2px 4px;
+            font-size: 90%;
+        }
+        pre {
+            background-color: #eee;
+            padding: 10px;
+            overflow-x: auto;
+        }
+        h1, h2, h3 {
+            color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <h1>在 Windows 11 上安裝與運行 Henry Hsu 與 ChatGPT Canvas 寫的 YouTube 下載器與 Whisper 轉錄器的指南</h1>
+    <p>本指南將幫助您在 Windows 11 上安裝必要的 Python 及相關軟體，並成功運行下載 YouTube 音訊並使用 Whisper 模型進行轉錄的程式。</p>
+
+    <h2>步驟 1：安裝 Python</h2>
+    <ol>
+        <li>前往 <a href="https://www.python.org/downloads/" target="_blank">Python 官方網站</a> 下載最新的 Python 版本 (推薦使用 3.10 以上版本)。</li>
+        <li>在安裝過程中，勾選 <code>Add Python to PATH</code>，以確保可以在命令提示字元中直接使用 Python。</li>
+    </ol>
+
+    <h2>步驟 2：安裝 FFmpeg</h2>
+    <ol>
+        <li>前往 <a href="https://ffmpeg.org/download.html" target="_blank">FFmpeg 官方網站</a> 下載 FFmpeg。</li>
+        <li>下載 Windows 版本的 FFmpeg 並解壓縮到本地硬碟，例如 <code>C:\ffmpeg</code>。</li>
+        <li>將 FFmpeg 的 <code>bin</code> 目錄添加到系統的 PATH 中，以便可以在命令提示字元中直接使用 FFmpeg。
+            <ul>
+                <li>右鍵點擊「此電腦」，選擇「屬性」->「進階系統設定」->「環境變數」。</li>
+                <li>在「系統變數」中找到 <code>Path</code>，點擊「編輯」，然後添加 FFmpeg 的 <code>bin</code> 目錄路徑，例如 <code>C:\ffmpeg\bin</code>。</li>
+            </ul>
+        </li>
+    </ol>
+
+    <h2>步驟 3：安裝所需的 Python 套件</h2>
+    <p>安裝完成後，打開命令提示字元 (Windows + R，輸入 <code>cmd</code>)，然後運行以下指令來安裝所需的套件：</p>
+    <pre><code>pip install yt-dlp whisper openai numpy tkinter</code></pre>
+    <p>這些指令將安裝：</p>
+    <ul>
+        <li><code>yt-dlp</code>：用於下載 YouTube 音訊和影片。</li>
+        <li><code>whisper</code>：用於語音轉錄的 OpenAI Whisper 模型。</li>
+        <li><code>openai</code>：OpenAI 的 API 客戶端 (Whisper 需要)。</li>
+        <li><code>numpy</code>：用於數值計算的庫。</li>
+        <li><code>tkinter</code>：用於建立圖形使用者界面 (GUI)。</li>
+    </ul>
+
+    <h2>步驟 4：下載並運行程式碼</h2>
+    <p>將以下程式碼保存為 <code>youtube_downloader.py</code> 檔案：</p>
+    <pre><code># written by Henry Hsu and ChatGPT canvas 20241120
+import tkinter as tk
+from tkinter import messagebox
+from tkinter import ttk
+import threading
+import os
+import logging
+import yt_dlp
+import whisper
+import warnings
+import textwrap
+import time
+import numpy as np
+
+# 忽略非關鍵警告
+warnings.filterwarnings("ignore", category=FutureWarning)
+warnings.filterwarnings("ignore", category=UserWarning)
+
+# 配置日誌記錄
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+
+def download_youtube_mp3_and_subtitles(url, output_path="downloads/%(title)s.%(ext)s", progress_label=None):
+    """從 YouTube 下載 MP3 和字幕"""
+    try:
+        if progress_label:
+            progress_label.config(text="正在下載音訊和字幕...")
+        ydl_opts = {
+            'format': 'bestaudio/best',
+            'postprocessors': [{
+                'key': 'FFmpegExtractAudio',
+                'preferredcodec': 'mp3',
+                'preferredquality': '192',
+            }],
+            'outtmpl': output_path,
+            'writesubtitles': True,
+            'writeautomaticsub': True,
+            'subtitleslangs': ['zh-Hant', 'zh-Hans', 'en'],
+            'subtitlesformat': 'vtt',
+        }
+
+        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+            logging.info(f"開始下載: {url}")
+            info = ydl.extract_info(url, download=True)
+            filename = ydl.prepare_filename(info)
+            mp3_filename = os.path.splitext(filename)[0] + '.mp3'
+            subtitle_files = [
+                os.path.splitext(filename)[0] + '.zh-Hant.vtt',
+                os.path.splitext(filename)[0] + '.zh-Hans.vtt',
+                os.path.splitext(filename)[0] + '.en.vtt',
+            ]
+
+            subtitle_file = next((file for file in subtitle_files if os.path.exists(file)), None)
+
+            if subtitle_file:
+                logging.info(f"字幕檔已下載: {subtitle_file}")
+                if progress_label:
+                    progress_label.config(text="找到字幕檔，正在處理...")
+            else:
+                logging.warning("未找到字幕檔。")
+                if progress_label:
+                    progress_label.config(text="未找到字幕檔，使用 Whisper 進行轉錄。")
+
+            return mp3_filename, subtitle_file
+    except Exception as e:
+        logging.error(f"下載失敗: {str(e)}")
+        return None, None
+
+def read_subtitle_file(subtitle_file):
+    """讀取字幕檔內容"""
+    try:
+        with open(subtitle_file, 'r', encoding='utf-8') as file:
+            lines = file.readlines()
+
+        text = ""
+        for line in lines:
+            if not line.strip().startswith('WEBVTT') and '-->' not in line and not line.strip().isdigit():
+                text += line.strip() + " "
+        return text.strip()
+    except Exception as e:
+        logging.error(f"讀取字幕檔失敗: {str(e)}")
+        return None
+
+def convert_audio_to_text_with_whisper(audio_file, progress_bar=None, progress_label=None):
+    """使用 Whisper 本地模型轉錄音訊並更新 GUI 進度條"""
+    try:
+        logging.info(f"正在處理音訊檔: {audio_file}")
+        if progress_label:
+            progress_label.config(text="Whisper 正在處理音訊，請稍候...")
+        model = whisper.load_model("base")
+        audio = whisper.audio.load_audio(audio_file)
+        duration = len(audio) / whisper.audio.SAMPLE_RATE
+
+        if progress_bar:
+            progress_bar["maximum"] = duration
+            progress_bar["value"] = 0
+
+        # 將音訊分成多個片段，逐步進行轉錄，以便更新進度條
+        chunk_size = int(whisper.audio.SAMPLE_RATE * 30)  # 每次處理 30 秒的音訊
+        total_chunks = int(np.ceil(len(audio) / chunk_size))
+        transcribed_text = ""
+
+        for i in range(total_chunks):
+            start = i * chunk_size
+            end = min((i + 1) * chunk_size, len(audio))
+            audio_chunk = audio[start:end]
+
+            logging.info(f"正在處理第 {i + 1}/{total_chunks} 個音訊片段...")
+            result = model.transcribe(audio_chunk, fp16=False)
+            transcribed_text += result.get("text", "") + " "
+
+            # 更新進度條
+            current_time = (i + 1) * 30 if (i + 1) * 30 < duration else duration
+            if progress_bar:
+                progress_bar["value"] = current_time
+                progress_label.config(text=f"Whisper 正在處理音訊，進度: {int(current_time / duration * 100)}%...")
+
+        logging.info(f"音訊轉錄成功")
+        if progress_label:
+            progress_label.config(text="音訊轉錄完成！")
+        return transcribed_text.strip()
+    except Exception as e:
+        logging.error(f"音訊轉錄失敗: {str(e)}")
+        if progress_label:
+            progress_label.config(text="音訊轉錄失敗！")
+        return None
+
+def save_text_to_file(text, output_path):
+    """將文本保存到 .txt 檔，每 50 個字元換行"""
+    try:
+        wrapped_text = "\n".join(textwrap.wrap(text, width=50))
+        with open(output_path, 'w', encoding='utf-8') as file:
+            file.write(wrapped_text)
+        logging.info(f"結果已保存至 {output_path}")
+    except Exception as e:
+        logging.error(f"保存文本到檔案失敗: {str(e)}")
+
+def start_download(url_entry, progress_bar, progress_label):
+    url = url_entry.get().strip()
+    if not url:
+        messagebox.showerror("錯誤", "請輸入有效的 YouTube 連結！")
+        return
+
+    def run_download():
+        mp3_file, subtitle_file = download_youtube_mp3_and_subtitles(url, progress_label=progress_label)
+        if mp3_file:
+            base_filename = os.path.splitext(mp3_file)[0]
+            output_text_file = base_filename + "_transcription.txt"
+
+            if subtitle_file:
+                logging.info(f"正在處理字幕檔")
+                subtitle_text = read_subtitle_file(subtitle_file)
+                if subtitle_text:
+                    save_text_to_file(subtitle_text, output_text_file)
+                    if progress_label:
+                        progress_label.config(text="字幕文本保存成功！")
+                else:
+                    logging.warning("讀取字幕檔失敗。")
+                    if progress_label:
+                        progress_label.config(text="讀取字幕檔失敗。")
+            else:
+                logging.info(f"未找到字幕檔，使用 Whisper 進行音訊轉錄。")
+                transcribed_text = convert_audio_to_text_with_whisper(mp3_file, progress_bar=progress_bar, progress_label=progress_label)
+                if transcribed_text:
+                    save_text_to_file(transcribed_text, output_text_file)
+                    if progress_label:
+                        progress_label.config(text="音訊轉錄結果保存成功！")
+                else:
+                    logging.warning("音訊轉錄失敗。")
+
+        else:
+            logging.error("下載失敗。請檢查連結或網路連線。")
+            if progress_label:
+                progress_label.config(text="下載失敗。請檢查連結或網路連線！")
+        messagebox.showinfo("完成", "處理完成！")
+
+    threading.Thread(target=run_download).start()
+
+def create_gui():
+    root = tk.Tk()
+    root.title("YouTube MP3 和字幕下載器 (Whisper 本地版)")
+    root.geometry("500x400")
+    root.resizable(False, False)
+
+    tk.Label(root, text="輸入 YouTube 影片連結:").pack(pady=5)
+    url_entry = tk.Entry(root, width=50)
+    url_entry.pack(pady=5)
+
+    progress_label = tk.Label(root, text="", fg="blue", wraplength=450, justify="left")
+    progress_label.pack(pady=10)
+
+    progress_bar = ttk.Progressbar(root, orient="horizontal", length=400, mode="determinate")
+    progress_bar.pack(pady=5)
+
+    download_button = tk.Button(
+        root, text="開始下載", command=lambda: start_download(url_entry, progress_bar, progress_label)
+    )
+    download_button.pack(pady=10)
+
+    root.mainloop()
+
+if __name__ == "__main__":
+    create_gui()
+    </code></pre>
+
+    <h2>步驟 5：運行程式</h2>
+    <p>打開命令提示字元，進入包含 <code>youtube_downloader.py</code> 的目錄，然後運行以下指令來執行程式：</p>
+    <pre><code>python youtube_downloader.py</code></pre>
+    <p>這將打開一個圖形使用者界面，您可以在其中輸入 YouTube 影片的連結，然後點擊「開始下載」按鈕來下載音訊並進行轉錄。</p>
+
+    <h2>步驟 6：將程式打包成執行檔</h2>
+    <p>如果您想要將程式打包成可執行檔，您可以使用 <code>PyInstaller</code>。請按照以下步驟操作：</p>
+    <ol>
+        <li>在命令提示字元中安裝 PyInstaller：
+            <pre><code>pip install pyinstaller</code></pre>
+        </li>
+        <li>使用以下指令將程式打包為執行檔：
+            <pre><code>pyinstaller --onefile youtube_downloader.py</code></pre>
+            這個指令會在一個獨立的檔案中生成可執行的 .exe 檔，方便在 Windows 上運行。
+        </li>
+        <li>完成後，您可以在 <code>dist</code> 資料夾中找到生成的 <code>youtube_downloader.exe</code> 檔案。</li>
+    </ol>
+
+    <h2>結論</h2>
+    <p>現在，您應該已經成功安裝了所需的軟體並運行了 YouTube 下載器與 Whisper 轉錄器的程式。這個指南幫助您一步一步地設置環境、下載所需的依賴，並最終成功下載和轉錄 YouTube 影片的音訊。祝您使用愉快！</p>
+</body>
+</html>
