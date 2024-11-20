@@ -1,4 +1,4 @@
-
+﻿
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
@@ -62,6 +62,12 @@ pip install pydub
             </pre>
         </ul>
     </div>
+    <h2>下載執行檔</h2>
+    <p>已將編譯好的執行檔壓縮為 7z，點擊以下連結下載：(如果防毒軟體報警，請執行檔名的絕對路徑加入白名單。)</p>
+    <p>絕對無毒，有疑慮的請自己編譯原始碼。</p>
+    <a href="https://github.com/henryhsu0228/HenryHsu_markmap/raw/main/binaries/youtube_downloader_mp3_sub_added.7z" download>
+        點擊這裡下載執行檔 (7z 格式)
+    </a>
     <h2>打包程式為執行檔</h2>
     <div class="packaging">
         <ul>
@@ -81,7 +87,7 @@ pyinstaller --windowed youtube_downloader_gui.py
             </pre>
             <li><strong>注意：</strong></li>
             <ul>
-                <li>如果防毒軟體報警，請嘗試將 dist 資料夾加入白名單。</li>
+                <li>如果防毒軟體報警，請嘗試執行檔名加入白名單。</li>
                 <li>或者禁用 UPX 壓縮，執行以下指令：</li>
                 <pre>
 pyinstaller --onefile --windowed --noupx youtube_downloader_gui.py
