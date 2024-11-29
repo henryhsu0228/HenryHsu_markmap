@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <title>YouTube MP3 和字幕下載器 (Whisper + GPT-4o-mini 本地版) 使用指南</title>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; margin: 20px; }
+        h1, h2, h3 { color: #333; }
+        pre { background-color: #f4f4f4; padding: 10px; border: 1px solid #ddd; }
+        code { background-color: #f4f4f4; padding: 2px 4px; border-radius: 4px; }
+        .advertisement { background-color: #fffbe6; padding: 15px; border: 1px solid #ffeb3b; margin-bottom: 20px; }
+    </style>
+</head>
+<body>
+    <h1>YouTube MP3 和字幕下載器 (Whisper + GPT-4o-mini 本地版) 使用指南</h1>
+
+    <div class="advertisement">
+        <p><strong>還在為整理 YouTube 影片或自己狂想錄音檔的重點而浪費時間嗎？</strong></p>
+        <p>不用花錢學 Zapier 或 Make 那龐然大物做自動化，也不用再被繁瑣的手動 ChatGPT 操作拖累，更不用忍受其他 AI 工具提取重點時細節不見了的困擾！這款應用程式專為節省時間與提升效率設計，解決了市面上 AI 工具無法調整重點提取細緻度的痛點：</p>
+        <p><strong>功能亮點：</strong></p>
+        <ol>
+            <li>YouTube 影片有字幕？ 一鍵下載字幕並傳送至 OpenAI GPT-4o，快速生成心智圖（Markmap 格式）。</li>
+            <li>YouTube 影片無字幕？ 使用 OpenAI Whisper 模型自動將語音轉文字，再由 GPT-4o 製作心智圖。</li>
+            <li>支援錄音檔整理：輸入您的錄音檔，即可生成清晰的心智圖。</li>
+            <li>文字檔轉心智圖：上傳任意 TXT 檔案，輕鬆轉換為直觀易讀的心智圖。</li>
+            <li>調整重點細緻度：自定義 token 數量，精確控制心智圖的細節程度。</li>
+        </ol>
+        <p>不再浪費時間，解放雙手，專注於創造與思考！</p>
+    </div>
+
+    <h2>一、系統要求</h2>
+    <p>要在 Windows 11 64 位元 PC 或筆記型電腦上運行此程式，您需要以下條件：</p>
+    <ul>
+        <li>Windows 11 64 位元作業系統</li>
+        <li>安裝 <strong>ffmpeg</strong>（供音訊和影片處理）</li>
+    </ul>
+
+    <h3>1. 下載程式</h3>
+    <p>請從提供的連結下載已打包好的可執行檔（.exe 檔案）。該可執行檔已包含所有必要的依賴項，無需額外安裝 Python 或其他套件。</p>
+
+    <h2>二、安裝 ffmpeg</h2>
+    <p>ffmpeg 用於處理音訊和影片檔案，請按照以下步驟安裝：</p>
+    <ol>
+        <li>前往 <a href="https://ffmpeg.org/download.html">ffmpeg 官方網站</a>，下載適用於 Windows 的 ffmpeg 二進制檔案。</li>
+        <li>選擇 Windows builds，進入第三方提供的 Windows 版本下載頁面，如 <a href="https://www.gyan.dev/ffmpeg/builds/">Gyan.dev</a>。</li>
+        <li>下載 "ffmpeg-git-full.7z" 或 "ffmpeg-git-essentials.7z" 壓縮檔案。</li>
+        <li>使用 7-Zip 等工具解壓縮檔案到您的電腦，例如 "C:\ffmpeg\"。</li>
+        <li>將 ffmpeg 的 bin 目錄添加到系統的 PATH 環境變數中：
+            <ol>
+                <li>右鍵點擊 "此電腦"，選擇 "內容"。</li>
+                <li>點擊 "進階系統設定"。</li>
+                <li>在 "系統內容" 中點擊 "環境變數"。</li>
+                <li>在 "系統變數" 中找到 "Path"，點擊 "編輯"。</li>
+                <li>點擊 "新增"，輸入 ffmpeg 的 bin 目錄路徑，例如 "C:\ffmpeg\bin"。</li>
+                <li>點擊 "確定" 保存更改。</li>
+            </ol>
+        </li>
+        <li>重新啟動電腦或登出再登入，以使環境變數生效。</li>
+        <li>在命令提示字元中輸入 <code>ffmpeg -version</code>，若顯示版本資訊，則表示安裝成功。</li>
+    </ol>
+
+    <h2>三、程式操作指南</h2>
+    <p>以下是程式的 GUI 功能操作指南：</p>
+
+    <h3>1. 啟動程式</h3>
+    <ol>
+        <li>雙擊下載的可執行檔（.exe 檔案）以啟動程式。</li>
+    </ol>
+
+    <h3>2. 設定 OpenAI API 金鑰</h3>
+    <ol>
+        <li>在程式介面上方，找到 "輸入 OpenAI API 金鑰" 的輸入框。</li>
+        <li>輸入您的 OpenAI API 金鑰。</li>
+        <li>點擊 "設定 API 金鑰" 按鈕，金鑰將被保存並用於後續的 GPT 處理。</li>
+    </ol>
+
+    <h3>3. 下載並處理 YouTube 影片</h3>
+    <ol>
+        <li>在 "輸入 YouTube 影片連結" 的輸入框中，貼上您想要下載的 YouTube 影片連結。</li>
+        <li>點擊 "開始心智圖轉換" 按鈕，程式將開始下載影片的音訊和字幕，並進行處理：
+            <ul>
+                <li>如果影片有字幕，將使用字幕進行處理。</li>
+                <li>如果沒有字幕，將使用 Whisper 模型轉錄音訊為文本。</li>
+                <li>使用 GPT-4o-mini 模型將文本轉換為 Markmap 心智圖格式。</li>
+            </ul>
+        </li>
+        <li>處理完成後，結果將保存在程式目錄下的 "downloads" 資料夾中。</li>
+    </ol>
+
+    <h3>4. 只下載音訊</h3>
+    <ol>
+        <li>在 "輸入 YouTube 影片連結" 的輸入框中，貼上您想要下載的 YouTube 影片連結。</li>
+        <li>點擊 "只下載音訊" 按鈕，程式將下載影片的音訊（MP3 格式），保存在 "downloads" 資料夾中。</li>
+    </ol>
+
+    <h3>5. 處理本地 MP3 檔案</h3>
+    <ol>
+        <li>點擊 "選擇 MP3 檔案" 按鈕，瀏覽並選擇您電腦上的 MP3 檔案。</li>
+        <li>點擊 "處理 MP3 檔案" 按鈕，程式將使用 Whisper 模型轉錄音訊，並使用 GPT 模型進行文本處理。</li>
+        <li>處理完成後，結果將保存在 "downloads" 資料夾中。</li>
+    </ol>
+
+    <h3>6. 處理現有的 TXT 檔案</h3>
+    <ol>
+        <li>點擊 "處理現有 TXT 檔案" 按鈕，瀏覽並選擇您電腦上的 TXT 檔案。</li>
+        <li>程式將使用 GPT 模型對文本進行處理，轉換為 Markmap 心智圖格式。</li>
+        <li>處理完成後，結果將保存在 "downloads" 資料夾中。</li>
+    </ol>
+
+    <h3>7. 其他功能</h3>
+    <ul>
+        <li>設定每次處理的 Token 數量，預設為 1000，可根據需要調整。</li>
+        <li>下載字幕選項：可選擇是否下載 YouTube 影片的字幕。</li>
+        <li>點擊 "打開結果目錄" 按鈕，可快速打開 "downloads" 資料夾查看結果。</li>
+    </ul>
+
+    <h2>四、注意事項</h2>
+    <ul>
+        <li>請確保您的網路連線正常，以便下載影片和與 OpenAI API 進行通訊。</li>
+        <li>使用 OpenAI API 可能會產生費用，請確保您的帳戶有足夠的餘額。</li>
+        <li>處理長時間的影片可能需要較長的時間，請耐心等待。</li>
+        <li>如果程式報錯，請查看日誌資訊，確認所有依賴項是否正確安裝。</li>
+        <li>Whisper 模型可能需要較高的硬體資源，建議在具有較好性能的電腦上運行。</li>
+        <li>由於程式已打包成可執行檔，部分防毒軟體可能會誤報，請將其添加到信任清單。</li>
+    </ul>
+
+    <h2>五、聯絡方式</h2>
+    <p>如果想要下載試用請寄信到以下電子郵件, 標題請註明 "Thank you, Henry. 台灣 No.1"：</p>
+    <ul>
+	    <li>電子郵件：henrytalk.techpro@gmail.com</li>
+        <li>Facebook 粉絲專頁：<a href="https://www.facebook.com/profile.php?id=61566951413872">Facebook 粉絲專頁</a></li>
+    </ul>
+</body>
+</html>
