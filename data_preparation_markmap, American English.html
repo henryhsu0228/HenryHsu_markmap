@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+<title>Markmap</title>
+<style>
+* {
+  margin: 0;
+  padding: 0;
+}
+#mindmap {
+  display: block;
+  width: 100vw;
+  height: 100vh;
+}
+</style>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/markmap-toolbar@0.17.2/dist/style.css">
+</head>
+<body>
+<svg id="mindmap"></svg>
+<script src="https://cdn.jsdelivr.net/npm/d3@7.8.5/dist/d3.min.js"></script><script src="https://cdn.jsdelivr.net/npm/markmap-view@0.17.2/dist/browser/index.js"></script><script src="https://cdn.jsdelivr.net/npm/markmap-toolbar@0.17.2/dist/index.js"></script><script>((r) => {
+            setTimeout(r);
+          })(() => {
+  const { markmap, mm } = window;
+  const toolbar = new markmap.Toolbar();
+  toolbar.attach(mm);
+  const el = toolbar.render();
+  el.setAttribute("style", "position:absolute;bottom:20px;right:20px");
+  document.body.append(el);
+})</script><script>((getMarkmap, getOptions, root2, jsonOptions) => {
+              const markmap = getMarkmap();
+              window.mm = markmap.Markmap.create(
+                "svg#mindmap",
+                (getOptions || markmap.deriveOptions)(jsonOptions),
+                root2
+              );
+            })(() => window.markmap,null,{"content":"","children":[{"content":"Data Preparation Basics","children":[{"content":"<li><input type=\"checkbox\">Introduction to Pandas</li>","children":[{"content":"<li><input type=\"checkbox\">Pandas is essential for data cleansing.</li>","children":[],"payload":{"lines":"3,4"}},{"content":"<li><input type=\"checkbox\">It provides powerful data analysis.</li>","children":[],"payload":{"lines":"4,5"}},{"content":"<li><input type=\"checkbox\">Pandas is easy to use for data visualization.</li>","children":[],"payload":{"lines":"5,6"}},{"content":"<li><input type=\"checkbox\">It simplifies machine learning tasks.</li>","children":[],"payload":{"lines":"6,7"}},{"content":"<li><input type=\"checkbox\">Pandas is built on top of NumPy.</li>","children":[],"payload":{"lines":"7,8"}},{"content":"<li><input type=\"checkbox\">Arrays and matrices are known as Series and DataFrames.</li>","children":[],"payload":{"lines":"8,9"}}],"payload":{"lines":"2,3"}},{"content":"<li><input type=\"checkbox\">Understanding Indexing</li>","children":[{"content":"<li><input type=\"checkbox\">An index uniquely identifies rows and columns.</li>","children":[],"payload":{"lines":"11,12"}},{"content":"<li><input type=\"checkbox\">Indexing in pandas uses square brackets or .loc indexer.</li>","children":[],"payload":{"lines":"12,13"}},{"content":"<li><input type=\"checkbox\">A DataFrame is a spreadsheet of rows and columns.</li>","children":[],"payload":{"lines":"13,14"}},{"content":"<li><input type=\"checkbox\">Rows and columns are Series objects in pandas.</li>","children":[],"payload":{"lines":"14,15"}},{"content":"<li><input type=\"checkbox\">A Series object is indexed, representing a single row or column.</li>","children":[],"payload":{"lines":"15,16"}}],"payload":{"lines":"10,11"}},{"content":"<li><input type=\"checkbox\">Comparison Operators Overview</li>","children":[{"content":"<li><input type=\"checkbox\">Familiarity with comparison operators is essential.</li>","children":[],"payload":{"lines":"18,19"}},{"content":"<li><input type=\"checkbox\">The greater-than and less-than symbols are important.</li>","children":[],"payload":{"lines":"19,20"}}],"payload":{"lines":"17,18"}},{"content":"<li><input type=\"checkbox\">Using Indexing and Slicing</li>","children":[{"content":"<li><input type=\"checkbox\">Import necessary libraries: NumPy and pandas.</li>","children":[],"payload":{"lines":"22,23"}},{"content":"<li><input type=\"checkbox\">Use Shift + Enter to run code in iPython.</li>","children":[],"payload":{"lines":"23,24"}}],"payload":{"lines":"21,22"}},{"content":"<li><input type=\"checkbox\">Selecting and Retrieving Data</li>","children":[{"content":"<li><input type=\"checkbox\">Index values can be in label or integer form.</li>","children":[],"payload":{"lines":"26,27"}},{"content":"<li><input type=\"checkbox\">Create a Series object using np.arange.</li>","children":[],"payload":{"lines":"27,28"}},{"content":"<li><input type=\"checkbox\">Label the Series index with names.</li>","children":[],"payload":{"lines":"28,29"}},{"content":"<li><input type=\"checkbox\">Practice selecting elements with label index.</li>","children":[],"payload":{"lines":"29,30"}},{"content":"<li><input type=\"checkbox\">Use integer index to select elements.</li>","children":[],"payload":{"lines":"30,31"}}],"payload":{"lines":"25,26"}},{"content":"<li><input type=\"checkbox\">Creating a DataFrame</li>","children":[{"content":"<li><input type=\"checkbox\">Generate a Series of random numbers.</li>","children":[],"payload":{"lines":"33,34"}},{"content":"<li><input type=\"checkbox\">Set the seed for the random number generator.</li>","children":[],"payload":{"lines":"34,35"}},{"content":"<li><input type=\"checkbox\">Create a DataFrame object using the DataFrame constructor.</li>","children":[],"payload":{"lines":"35,36"}}],"payload":{"lines":"32,33"}}],"payload":{"lines":"0,1"}},{"content":"Data Preparation Basics","children":[{"content":"<li><input type=\"checkbox\">Creating a DataFrame</li>","children":[{"content":"<li><input type=\"checkbox\">Using np.random.rand for random numbers</li>","children":[],"payload":{"lines":"39,40"}},{"content":"<li><input type=\"checkbox\">Specifying dimensions with reshape</li>","children":[],"payload":{"lines":"40,41"}},{"content":"<li><input type=\"checkbox\">Setting index for rows</li>","children":[],"payload":{"lines":"41,42"}},{"content":"<li><input type=\"checkbox\">Setting index for columns</li>","children":[],"payload":{"lines":"42,43"}},{"content":"<li><input type=\"checkbox\">Printing the DataFrame object</li>","children":[],"payload":{"lines":"43,44"}}],"payload":{"lines":"38,39"}},{"content":"<li><input type=\"checkbox\">Using the .iloc Indexer</li>","children":[{"content":"<li><input type=\"checkbox\">Selecting specific rows and columns</li>","children":[],"payload":{"lines":"46,47"}},{"content":"<li><input type=\"checkbox\">Applying the .loc method</li>","children":[],"payload":{"lines":"47,48"}},{"content":"<li><input type=\"checkbox\">Retrieving values at specified indexes</li>","children":[{"content":"<li><input type=\"checkbox\">Example: Getting value at row two and column five</li>","children":[],"payload":{"lines":"49,50"}}],"payload":{"lines":"48,49"}}],"payload":{"lines":"45,46"}},{"content":"<li><input type=\"checkbox\">Understanding Data Slicing</li>","children":[{"content":"<li><input type=\"checkbox\">Using slicing to select multiple values</li>","children":[],"payload":{"lines":"52,53"}},{"content":"<li><input type=\"checkbox\">Defining index values with a colon</li>","children":[],"payload":{"lines":"53,54"}},{"content":"<li><input type=\"checkbox\">Example: Selecting rows between three and seven</li>","children":[{"content":"<li><input type=\"checkbox\">Slicing returns all values between specified rows</li>","children":[],"payload":{"lines":"55,56"}}],"payload":{"lines":"54,55"}}],"payload":{"lines":"51,52"}},{"content":"<li><input type=\"checkbox\">Comparing with Scalars</li>","children":[{"content":"<li><input type=\"checkbox\">Understanding comparison operators</li>","children":[],"payload":{"lines":"58,59"}},{"content":"<li><input type=\"checkbox\">Creating a Boolean DataFrame with comparisons</li>","children":[{"content":"<li><input type=\"checkbox\">Example: Checking if values are less than 0.2</li>","children":[],"payload":{"lines":"60,61"}}],"payload":{"lines":"59,60"}}],"payload":{"lines":"57,58"}},{"content":"<li><input type=\"checkbox\">Filtering with Scalars</li>","children":[{"content":"<li><input type=\"checkbox\">Using comparisons for indexing</li>","children":[],"payload":{"lines":"63,64"}},{"content":"<li><input type=\"checkbox\">Creating a filter for specific values</li>","children":[{"content":"<li><input type=\"checkbox\">Example: Filtering for values greater than six</li>","children":[],"payload":{"lines":"65,66"}}],"payload":{"lines":"64,65"}}],"payload":{"lines":"62,63"}}],"payload":{"lines":"36,37"}},{"content":"Basic Knowledge of Data Preparation","children":[{"content":"<li><input type=\"checkbox\">Creating a DataFrame</li>","children":[{"content":"<li><input type=\"checkbox\">Using np.random.rand</li>","children":[],"payload":{"lines":"107,108"}},{"content":"<li><input type=\"checkbox\">Reshaping into 6x6</li>","children":[],"payload":{"lines":"108,109"}},{"content":"<li><input type=\"checkbox\">Understanding reshaped DataFrame</li>","children":[],"payload":{"lines":"109,110"}}],"payload":{"lines":"106,107"}},{"content":"<li><input type=\"checkbox\">Setting Missing Values</li>","children":[{"content":"<li><input type=\"checkbox\">Using .loc method</li>","children":[],"payload":{"lines":"112,113"}},{"content":"<li><input type=\"checkbox\">Setting missing values in a range</li>","children":[],"payload":{"lines":"113,114"}},{"content":"<li><input type=\"checkbox\">Setting missing values in a different range</li>","children":[{"content":"<li><input type=\"checkbox\">This demonstrates manipulation of DataFrame for missing values.</li>","children":[],"payload":{"lines":"115,116"}}],"payload":{"lines":"114,115"}}],"payload":{"lines":"111,112"}},{"content":"<li><input type=\"checkbox\">Filling Missing Values</li>","children":[{"content":"<li><input type=\"checkbox\">Using fillna method</li>","children":[],"payload":{"lines":"118,119"}},{"content":"<li><input type=\"checkbox\">Replacing NaN values</li>","children":[{"content":"<li><input type=\"checkbox\">This shows how to effectively manage NaN values by replacing them with zeros.</li>","children":[],"payload":{"lines":"120,121"}}],"payload":{"lines":"119,120"}},{"content":"<li><input type=\"checkbox\">Using fillna with dictionary</li>","children":[],"payload":{"lines":"121,122"}},{"content":"<li><input type=\"checkbox\">Filling different columns with specified values</li>","children":[{"content":"<li><input type=\"checkbox\">This illustrates versatile filling strategies for better DataFrame management.</li>","children":[],"payload":{"lines":"123,124"}}],"payload":{"lines":"122,123"}}],"payload":{"lines":"117,118"}},{"content":"<li><input type=\"checkbox\">Practical Applications</li>","children":[{"content":"<li><input type=\"checkbox\">Relevance of filling missing data</li>","children":[],"payload":{"lines":"126,127"}},{"content":"<li><input type=\"checkbox\">Using last known values</li>","children":[{"content":"<li><input type=\"checkbox\">This demonstrates the fill-forward method for maintaining data integrity.</li>","children":[],"payload":{"lines":"128,129"}}],"payload":{"lines":"127,128"}}],"payload":{"lines":"125,126"}},{"content":"<li><input type=\"checkbox\">Counting Missing Values</li>","children":[{"content":"<li><input type=\"checkbox\">Understanding usefulness of counts</li>","children":[],"payload":{"lines":"131,132"}},{"content":"<li><input type=\"checkbox\">Creating a summary statistic</li>","children":[],"payload":{"lines":"132,133"}},{"content":"<li><input type=\"checkbox\">Generating counts of missing values</li>","children":[{"content":"<li><input type=\"checkbox\">This illustrates how to identify problematic variables in your dataset.</li>","children":[],"payload":{"lines":"134,135"}}],"payload":{"lines":"133,134"}},{"content":"<li><input type=\"checkbox\">Using isnull and sum methods</li>","children":[],"payload":{"lines":"135,136"}}],"payload":{"lines":"130,131"}}],"payload":{"lines":"66,67"}},{"content":"數據準備基礎知識","children":[{"content":"<li><input type=\"checkbox\">Creating a Series Object</li>","children":[{"content":"<li><input type=\"checkbox\">Define a variable and construct </li>","children":[],"payload":{"lines":"220,221"}},{"content":"<li><input type=\"checkbox\">Assign values from zero to five </li>","children":[],"payload":{"lines":"221,222"}},{"content":"<li><input type=\"checkbox\">Assign a name to the Series object</li>","children":[],"payload":{"lines":"222,223"}}],"payload":{"lines":"219,220"}},{"content":"<li><input type=\"checkbox\">Joining Data Sources</li>","children":[{"content":"<li><input type=\"checkbox\">Using the join method to add</li>","children":[],"payload":{"lines":"225,226"}},{"content":"<li><input type=\"checkbox\">Specify both data frame and Series</li>","children":[],"payload":{"lines":"226,227"}},{"content":"<li><input type=\"checkbox\">Print out the result</li>","children":[],"payload":{"lines":"227,228"}}],"payload":{"lines":"224,225"}},{"content":"<li><input type=\"checkbox\">Appending Data Tables</li>","children":[{"content":"<li><input type=\"checkbox\">Demonstrate using the append method</li>","children":[{"content":"<li><input type=\"checkbox\">Keep original index values</li>","children":[],"payload":{"lines":"231,232"}},{"content":"<li><input type=\"checkbox\">Recreate the index</li>","children":[],"payload":{"lines":"232,233"}}],"payload":{"lines":"230,231"}},{"content":"<li><input type=\"checkbox\">Setting ignore_index to false</li>","children":[],"payload":{"lines":"233,234"}},{"content":"<li><input type=\"checkbox\">Using ignore_index to true</li>","children":[],"payload":{"lines":"234,235"}}],"payload":{"lines":"229,230"}},{"content":"<li><input type=\"checkbox\">Sorting Data</li>","children":[{"content":"<li><input type=\"checkbox\">Using the sort_values method</li>","children":[],"payload":{"lines":"237,238"}},{"content":"<li><input type=\"checkbox\">Sort by values in column five</li>","children":[],"payload":{"lines":"238,239"}},{"content":"<li><input type=\"checkbox\">Set ascending to false </li>","children":[],"payload":{"lines":"239,240"}}],"payload":{"lines":"236,237"}},{"content":"<li><input type=\"checkbox\">Grouping and Aggregation</li>","children":[{"content":"<li><input type=\"checkbox\">Understanding subgroups in data</li>","children":[],"payload":{"lines":"242,243"}},{"content":"<li><input type=\"checkbox\">Example of fruit dataset</li>","children":[],"payload":{"lines":"243,244"}},{"content":"<li><input type=\"checkbox\">Purpose of grouping data</li>","children":[],"payload":{"lines":"244,245"}},{"content":"<li><input type=\"checkbox\">Setting file path for dataset</li>","children":[],"payload":{"lines":"245,246"}},{"content":"<li><input type=\"checkbox\">Importing external dataset</li>","children":[],"payload":{"lines":"246,247"}}],"payload":{"lines":"241,242"}}],"payload":{"lines":"136,137"}},{"content":"Data Preparation Basics","children":[{"content":"<li><input type=\"checkbox\">Setting Up Data Environment</li>","children":[{"content":"<li><input type=\"checkbox\">Specify File Path</li>","children":[{"content":"<li><input type=\"checkbox\">Locate exercise files</li>","children":[],"payload":{"lines":"251,252"}},{"content":"<li><input type=\"checkbox\">Write file path into <code>address</code> variable</li>","children":[],"payload":{"lines":"252,253"}}],"payload":{"lines":"250,251"}},{"content":"<li><input type=\"checkbox\">Read Data into Environment</li>","children":[{"content":"<li><input type=\"checkbox\">Use <code>pd.read_csv(address)</code> to read data</li>","children":[],"payload":{"lines":"255,256"}}],"payload":{"lines":"254,255"}}],"payload":{"lines":"249,250"}},{"content":"<li><input type=\"checkbox\">Creating Dataframe</li>","children":[{"content":"<li><input type=\"checkbox\">Assign Column Names</li>","children":[{"content":"<li><input type=\"checkbox\">Column names include <code>car_names</code>, <code>mpg</code>, and others</li>","children":[],"payload":{"lines":"259,260"}}],"payload":{"lines":"258,259"}},{"content":"<li><input type=\"checkbox\">Display Initial Records</li>","children":[{"content":"<li><input type=\"checkbox\">Use <code>cars.head()</code> to display first five records</li>","children":[],"payload":{"lines":"262,263"}}],"payload":{"lines":"261,262"}}],"payload":{"lines":"257,258"}},{"content":"<li><input type=\"checkbox\">Grouping Data</li>","children":[{"content":"<li><input type=\"checkbox\">Group by Number of Cylinders</li>","children":[{"content":"<li><input type=\"checkbox\">Use <code>cars.groupby('cylinders')</code> to group data</li>","children":[],"payload":{"lines":"266,267"}}],"payload":{"lines":"265,266"}},{"content":"<li><input type=\"checkbox\">Calculate Mean Values</li>","children":[{"content":"<li><input type=\"checkbox\">Generate mean values with <code>cars_groups.mean()</code></li>","children":[],"payload":{"lines":"269,270"}},{"content":"<li><input type=\"checkbox\">Computes averages for four, six, and eight cylinders</li>","children":[],"payload":{"lines":"270,271"}}],"payload":{"lines":"268,269"}}],"payload":{"lines":"264,265"}}],"payload":{"lines":"247,248"}}]},null)</script>
+
+                <button id="saveButton" style="position: absolute; bottom: 20px; right: 20px;">
+                    保存選擇的重點
+                </button>
+                <script>
+                    // 保存按鈕點擊事件處理
+                    document.getElementById('saveButton').onclick = function() {
+                        // 獲取所有已勾選的項目
+                        const checkboxes = document.querySelectorAll('input[type="checkbox"]:checked');
+                        const selectedItems = Array.from(checkboxes).map(cb => cb.parentNode.textContent.trim());
+                        
+                        // 創建並下載文本文件
+                        const blob = new Blob([selectedItems.join('\n')], { type: 'text/plain' });
+                        const link = document.createElement('a');
+                        link.href = URL.createObjectURL(blob);
+                        link.download = 'selected_points.txt';
+                        link.click();
+                    };
+                    
+            window.mm = markmap.Markmap.create(
+                "svg#mindmap",
+                {
+                    initialExpandLevel: 2,  // 設定初始展開層級
+                    zoom: true,                                 // 啟用縮放功能
+                    pan: true,                                 // 啟用平移功能
+                    maxWidth: 300                              // 設定節點最大寬度
+                },
+                root2
+            );
+
+            // 步驟 8.1: 等待 markmap 載入完成後的自動展開處理
+            setTimeout(() => {
+                const svg = document.querySelector('svg#mindmap');
+                const nodes = svg.querySelectorAll('g.markmap-node');
+                const nodeArray = Array.from(nodes);
+                
+                // 找到主題節點
+                const mainTopic = nodeArray.find(node => 
+                    node.querySelector('text').textContent.includes('# Data Preparation Basics')
+                );
+                
+                if (mainTopic) {
+                    // 從最深層節點開始收起，但保留主題的下一層
+                    for (let i = nodeArray.length - 1; i >= 0; i--) {
+                        const node = nodeArray[i];
+                        const level = parseInt(node.getAttribute('data-depth') || '0');
+                        const hasChildren = node.nextElementSibling && 
+                                          node.nextElementSibling.classList.contains('markmap-node');
+                        
+                        // 收起深層節點，保持主要結構可見
+                        if (hasChildren && level >= 2) {
+                            const event = new MouseEvent('click', {
+                                bubbles: true,
+                                cancelable: true,
+                                view: window
+                            });
+                            node.dispatchEvent(event);
+                        }
+                    }
+                }
+            }, 500);  // 延遲 500ms 執行，確保 DOM 已完全載入
+            
+                </script>
+                </body>
+                
+</html>
