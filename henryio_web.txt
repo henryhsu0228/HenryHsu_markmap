@@ -8,7 +8,19 @@ https://henryhsu0228.github.io/HenryHsu_markmap/Elon_Musk的Twitter購買分析_
 https://henryhsu0228.github.io/HenryHsu_markmap/Elon_Musk值得學習的點_Mindmap_Traditional_Chinese.html
 
 
-https://henryhsu0228.github.io/HenryHsu_markmap/Open_Sharing/What~Are~The~Steps~of~the~Software~Development~LifecyclezhHant_Traditional Chinese_bilingual_markdown.html
+📢 親愛的軟體工程師朋友們，來分享一份我精心整理的心智圖！希望對大家有幫助，請笑納～ 😄
 
+✨ 心智圖功能亮點
+1️⃣ 四層架構：Default 展開到第 2 層，右上角提供按鍵可選擇展開層級，輕鬆瀏覽所需資訊！
+2️⃣ 節點 CheckBox 功能：每個節點都有 CheckBox，可選取項目並存檔成 Markdown 檔案，方便用 VSCode 或任何支援 Markdown 的編輯器查看與編輯。
 
-https://henryhsu0228.github.io/HenryHsu_markmap/Open_Sharing/What~is~a~Software~Development~Life~CyclezhHant_Traditional Chinese_bilingual_markdown.html
+如果你覺得實用，歡迎留言分享你的想法！👍
+
+什麼是軟體開發生命週期? What is a Software Development Life Cycle
+應用範例, 感謝 Johnny Khoury 的貢獻
+https://henryhsu0228.github.io/HenryHsu_markmap/Open_Sharing/What~is~a~Software~Development~Life~CyclezhHant_Traditional_Chinese_bilingual_markdown.html
+
+軟體開發生命週期的步驟是什麼？What Are The Steps of the Software Development Lifecycle?
+實現步驟, 感謝 Destin Learning 的貢獻
+https://henryhsu0228.github.io/HenryHsu_markmap/Open_Sharing/What~Are~The~Steps~of~the~Software~Development~LifecyclezhHant_Traditional_Chinese_bilingual_markdown.html
+
