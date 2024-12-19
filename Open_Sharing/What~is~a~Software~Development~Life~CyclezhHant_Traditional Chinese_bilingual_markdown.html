@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+<title>Markmap</title>
+<style>
+* {
+  margin: 0;
+  padding: 0;
+}
+#mindmap {
+  display: block;
+  width: 100vw;
+  height: 100vh;
+}
+</style>
+<link rel="stylesheet" href="https://unpkg.com/markmap-toolbar@0.17.2/dist/style.css">
+</head>
+<body><div class="controls" style="position: fixed; top: 10px; right: 10px;">
+                <select id="levelSelect" onchange="setExpandLevel(this.value)" style="padding: 5px;">
+                    <option value="1">Level 1</option>
+                    <option value="2" selected>Level 2</option>
+                    <option value="3">Level 3</option>
+                    <option value="4">Level 4</option>
+                    <option value="all">All</option>
+                </select>
+                <button id="saveButton" style="margin-left: 10px; padding: 5px;">Save Checked Items</button>
+                </div>
+                <style>
+                /* 基本背景設定 */
+                body, html, .svg-container {
+                    background-color: #f5e6d3 !important;  /* 溫和的米色背景 */
+                }
+
+                /* 文字樣式設定 */
+                text, .markmap-node text {
+                    fill: #2b2b2b !important;  /* 深灰色文字，比純黑色更柔和 */
+                    font-family: "Microsoft JhengHei", "微軟正黑體", sans-serif !important;
+                    font-weight: 900 !important;
+                    font-size: 15px !important;
+                    opacity: 1 !important;
+                    fill-opacity: 1 !important;
+                }
+
+                /* 強制設定所有 SVG 元素的透明度 */
+                svg * {
+                    opacity: 1 !important;
+                }
+
+                /* Markmap 節點和連接線 */
+                .markmap-node-circle {
+                    fill: #f8efe3 !important;  /* 稍淺的米色作為節點背景 */
+                    stroke: #b8977e !important;  /* 溫和的棕色邊框 */
+                }
+
+                .markmap-link {
+                    stroke: #967259 !important;  /* 溫和的棕色連接線 */
+                    stroke-width: 2px !important;
+                }
+
+                /* 控制項樣式 */
+                .controls {
+                    background-color: #f8efe3 !important;  /* 與節點背景相同的顏色 */
+                    border: 1px solid #d4c0a9 !important;
+                    box-shadow: 0 2px 4px rgba(139, 109, 82, 0.1) !important;
+                }
+
+                #levelSelect, #saveButton {
+                    background-color: #f8efe3 !important;
+                    color: #2b2b2b !important;
+                    border: 1px solid #d4c0a9 !important;
+                    font-weight: bold !important;
+                }
+
+                #levelSelect:hover, #saveButton:hover {
+                    background-color: #f0e4d4 !important;
+                }
+                </style>
+                <script>
+                function setExpandLevel(level) {
+                    if (!window.mm) return;
+                    function updateFoldState(node, depth) {
+                        if (!node) return;
+                        const shouldFold = level === "all" ? false : depth >= parseInt(level);
+                        if (!node.payload) node.payload = {};
+                        node.payload.fold = shouldFold;
+                        if (Array.isArray(node.children)) {
+                            node.children.forEach(child => updateFoldState(child, depth + 1));
+                        }
+                    }
+                    const data = window.mm.state.data;
+                    updateFoldState(data, 0);
+                    window.mm.setData(data);
+                    window.mm.fit();
+                }
+                </script>
+                <script>
+                document.addEventListener("DOMContentLoaded", () => {
+                    console.log("DOM fully loaded and parsed");
+                    
+                    setTimeout(() => {
+                        setExpandLevel("2");
+                    }, 100);
+
+                    const saveButton = document.getElementById("saveButton");
+                    if (saveButton) {
+                        saveButton.addEventListener("click", () => {
+                            const selectedItems = [];
+                            const processedNodes = new Set();
+
+                            function traverseNodes(node, level = 0) {
+                                if (processedNodes.has(node)) {
+                                    console.log(`Skipping already processed node: ${node.textContent.trim()}`);
+                                    return;
+                                }
+                                processedNodes.add(node);
+
+                                const rawText = node.textContent.trim();
+                                const checkbox = node.querySelector('foreignObject input[type="checkbox"]');
+                                
+                                console.log(`Processing node: ${rawText}`);
+                                console.log(`Node level: ${level}`);
+                                console.log(`Checkbox checked: ${checkbox && checkbox.checked}`);
+                                
+                                if (checkbox && checkbox.checked) {
+                                    const text = rawText.replace(/^\s*☐\s*/, '').trim();
+                                        const filteredText = text.replace(/[^一-龥぀-ヿa-zA-Z\s，。！？、：；（）【】《》""''~]+/g, "")
+                                        .replace(/\s+/g, ' ')  // 將多個空格合併為一個
+                                        .trim();  // 移除首尾空格
+
+                                    // 檢查是否包含中文和英文
+                                        const hasChinese = /[一-龥]/.test(filteredText);
+                                        const hasEnglish = /[a-zA-Z]/.test(filteredText);
+
+                                    // 如果同時包含中文和英文，在它們之間加入換行標籤
+                                        let formattedText = filteredText;
+                                        if (hasChinese && hasEnglish) {
+                                        // 找到英文和中文的分界點
+                                            const match = filteredText.match(/[a-zA-Z\s]+[一-龥]/);
+                                            if (match) {
+                                                const splitIndex = match.index + match[0].length - 1;
+                                                formattedText = filteredText.slice(0, splitIndex) + '<br>' + filteredText.slice(splitIndex);
+                                            }
+                                        }
+
+                                    selectedItems.push(
+                                        level === 0 ? `# ${formattedText}` : 
+                                        level === 1 ? `## ${formattedText}` : 
+                                        level === 2 ? `### ${formattedText}` :
+                                        level === 3 ? `#### ${formattedText}` :
+                                        `- ${formattedText}`
+                                    );
+                                    
+                                    console.log(`Selected node: ${formattedText}`);
+                                }
+
+                                // 獲取子節點並按視覺順序排序
+                                const parentG = node.closest('g');
+                                const childNodes = Array.from(document.querySelectorAll('.markmap-node'))
+                                    .filter(n => {
+                                        const g = n.closest('g');
+                                        if (!g) return false;
+                                        const path = g.getAttribute('data-path');
+                                        const parentPath = parentG.getAttribute('data-path');
+                                        return path && path.startsWith(parentPath + '.') && 
+                                               path.split('.').length === parentPath.split('.').length + 1;
+                                    })
+                                    .sort((a, b) => {
+                                        const gA = a.closest("g");
+                                        const gB = b.closest("g");
+                                        const transformA = gA.getAttribute("transform");
+                                        const transformB = gB.getAttribute("transform");
+                                        const [xA, yA] = transformA.match(/-?\d+\.?\d*/g).map(Number);
+                                        const [xB, yB] = transformB.match(/-?\d+\.?\d*/g).map(Number);
+                                        
+                                        // 先比較x座標（左右位置）
+                                        if (Math.abs(xA - xB) > 50) {
+                                            return xA - xB;
+                                        }
+                                        // x座標接近時，比較y座標（上下位置）
+                                        return yA - yB;
+                                    });
+
+                                console.log(`Found ${childNodes.length} child nodes`);
+
+                                childNodes.forEach(childNode => {
+                                    traverseNodes(childNode, level + 1);
+                                });
+                            }
+
+                            // 找到並排序第一層節點
+                            const firstLevelNodes = Array.from(document.querySelectorAll(".markmap-node"))
+                                .filter(node => {
+                                    const g = node.closest("g");
+                                    return g && g.getAttribute("data-path").split(".").length === 2;
+                                })
+                                .sort((a, b) => {
+                                    const transformA = a.closest("g").getAttribute("transform");
+                                    const transformB = b.closest("g").getAttribute("transform");
+                                    const xA = parseFloat(transformA.match(/translate\(([-\d.]+)/)[1]);
+                                    const xB = parseFloat(transformB.match(/translate\(([-\d.]+)/)[1]);
+                                    return xA - xB;
+                                });
+
+                            console.log(`Found ${firstLevelNodes.length} first-level nodes`);
+
+                            // 處理所有第一層節點
+                            firstLevelNodes.forEach(node => {
+                                traverseNodes(node, 1);  // 從第一層開始
+                            });
+
+                            if (selectedItems.length === 0) {
+                                alert('請先選擇要保存的項目！');
+                                return;
+                            }
+
+                            console.log("Selected items in order:");
+                            selectedItems.forEach((item, index) => {
+                                console.log(`${index + 1}. ${item}`);
+                            });
+
+                            const content = selectedItems.join('\n');
+                            saveFile(content, 'checked_items.md');
+                        });
+                    }
+                });
+
+                function saveFile(content, filename) {
+                    const blob = new Blob([content], { type: "text/plain" });
+                    const link = document.createElement("a");
+                    link.href = URL.createObjectURL(blob);
+                    link.download = filename;
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    URL.revokeObjectURL(link.href);
+                }
+                </script>
+<svg id="mindmap"></svg>
+<script src="https://unpkg.com/d3@7.8.5/dist/d3.min.js"></script><script src="https://unpkg.com/markmap-view@0.17.2/dist/browser/index.js"></script><script src="https://unpkg.com/markmap-toolbar@0.17.2/dist/index.js"></script><script>((r) => {
+            setTimeout(r);
+          })(() => {
+  const { markmap, mm } = window;
+  const toolbar = new markmap.Toolbar();
+  toolbar.attach(mm);
+  const el = toolbar.render();
+  el.setAttribute("style", "position:absolute;bottom:20px;right:20px");
+  document.body.append(el);
+})</script><script>((getMarkmap, getOptions, root2, jsonOptions) => {
+              const markmap = getMarkmap();
+              window.mm = markmap.Markmap.create(
+                "svg#mindmap",
+                (getOptions || markmap.deriveOptions)(jsonOptions),
+                root2
+              );
+            })(() => window.markmap,null,{"content":"","children":[{"content":"<input type=\"checkbox\"> Title:","children":[{"content":"<input type=\"checkbox\">什麼是軟體開發生命週期？","children":[],"payload":{"lines":"1,2"}}],"payload":{"lines":"0,1"}},{"content":"<input type=\"checkbox\"><br> Susan's Software Development Project <br><br>蘇珊的軟體開發專案","children":[{"content":"<input type=\"checkbox\"><br> Overview of SDLC <br> SDLC 概述","children":[{"content":"<input type=\"checkbox\"><br> Susan works at a company that specializes in various technical projects.<br><br> 蘇珊在一家專門完成各種技術項目的公司工作.","children":[],"payload":{"lines":"4,5"}},{"content":"<input type=\"checkbox\"><br> Her supervisor assigned her a project to develop a software application<br>for a new client. <br><br>她的主管分配給她一個為新客戶開發軟體應用程式的項目.","children":[],"payload":{"lines":"5,6"}},{"content":"<input type=\"checkbox\"><br> She needs to follow a process to ensure she completes the project<br>without missing key steps. <br><br>她需要遵循一個流程來確保她完成該項目，並且不會忘記任何需要的關鍵步驟.","children":[],"payload":{"lines":"6,7"}},{"content":"<input type=\"checkbox\"><br> Each stage of the SDLC produces deliverables and results needed to begin<br>the next stage. <br><br>SDLC中的每個階段都會產生開始流程下一階段所需的可交付成果和結果.","children":[],"payload":{"lines":"7,8"}}],"payload":{"lines":"3,4"}},{"content":"<input type=\"checkbox\"><br> Stages of SDLC <br> SDLC的階段","children":[{"content":"<input type=\"checkbox\"><br> The first stage is requirements gathering and analysis. <br><br>第一階段是需求收集和分析.","children":[],"payload":{"lines":"9,10"}},{"content":"<input type=\"checkbox\"><br> In this stage, leadership plans the project, and the client provides<br>requirements. <br><br>在這一階段，高階領導開始規劃專案，客戶向組織提供需求.","children":[],"payload":{"lines":"10,11"}},{"content":"<input type=\"checkbox\"><br> Susan collects the client's business needs to determine who will use the<br>software and how. <br><br>她收集客戶的業務需求，以確定誰將使用該軟體以及如何使用該軟體.","children":[],"payload":{"lines":"11,12"}},{"content":"<input type=\"checkbox\"><br> The second stage is software design. <br><br>第二階段是軟體設計.","children":[],"payload":{"lines":"12,13"}},{"content":"<input type=\"checkbox\"><br> Business architects generate multiple designs based on the requirements<br>collected. <br><br>此時業務架構師使用從第一階段收集的需求來產生產品的多種設計.","children":[],"payload":{"lines":"13,14"}},{"content":"<input type=\"checkbox\"><br> Each design is reviewed by internal stakeholders and the best one is<br>selected. <br><br>每個設計都由各個內部利益相關者在設計文件中進行審查，然後選擇最佳設計.","children":[],"payload":{"lines":"14,15"}},{"content":"<input type=\"checkbox\"><br> The third stage is coding and implementation. <br><br>第三階段是編碼和實現.","children":[],"payload":{"lines":"15,16"}},{"content":"<input type=\"checkbox\"><br> This involves using the design documents from the second stage to create<br>the code. <br><br>即使用第二階段的設計文件來實現設計並產生程式碼.","children":[],"payload":{"lines":"16,17"}},{"content":"<input type=\"checkbox\"><br> The code must be tested to ensure it operates according to<br>specifications. <br><br>這些程式碼的要求是，在程式碼測試後，必須確保程式碼按照規範運作.","children":[],"payload":{"lines":"17,18"}},{"content":"<input type=\"checkbox\"><br> The fourth stage is deployment. <br><br>第五階段是部署.","children":[],"payload":{"lines":"18,19"}},{"content":"<input type=\"checkbox\"><br> This is when the product is delivered to the client. <br><br>即產品交付給客戶.","children":[],"payload":{"lines":"19,20"}},{"content":"<input type=\"checkbox\"><br> The final stage is maintenance. <br><br>最後階段是維護或部署後的維護.","children":[],"payload":{"lines":"20,21"}},{"content":"<input type=\"checkbox\"><br> Once the product is in use, the client may encounter technical issues.<br><br> 一旦產品投入使用，客戶可能會遇到技術問題.","children":[],"payload":{"lines":"21,22"}}],"payload":{"lines":"8,9"}},{"content":"<input type=\"checkbox\"><br> Susan's Preparedness <br> 蘇珊的準備","children":[{"content":"<input type=\"checkbox\"><br> Now that Susan understands each stage of the SDLC, she is ready to<br>provide instructions to her project team. <br><br>現在，蘇珊了解了SDLC的每個階段，她已準備好向她的專案團隊提供說明.","children":[],"payload":{"lines":"23,24"}},{"content":"<input type=\"checkbox\"><br> She plans to gather requirements while her team collects client needs.<br><br> 她計劃和收集需求，同時她的團隊正在收集客戶對軟體的需求.","children":[],"payload":{"lines":"24,25"}}],"payload":{"lines":"22,23"}},{"content":"<input type=\"checkbox\"><br> SDLC Process Models <br> SDLC流程模型","children":[{"content":"<input type=\"checkbox\"><br> Susan decides to study various methods of SDLC. <br><br>蘇珊決定研究SDLC的各種方法.","children":[],"payload":{"lines":"26,27"}},{"content":"<input type=\"checkbox\"><br> Project managers can follow several SDLC process models to complete each<br>stage. <br><br>專案經理可以遵循幾種SDLC流程模型來完成SDLC中的每個階段.","children":[],"payload":{"lines":"27,28"}},{"content":"<input type=\"checkbox\"><br> Some SDLC models include the waterfall model, iterative model, and<br>spiral model. <br><br>一些SDLC模型包括瀑布模型、迭代模型和螺旋模型.","children":[],"payload":{"lines":"28,29"}}],"payload":{"lines":"25,26"}}],"payload":{"lines":"2,3"}},{"content":"<input type=\"checkbox\"><br> Software Development Models Overview <br><br>軟體開發模型概述.","children":[{"content":"<input type=\"checkbox\"><br> Steps Must Be Completed Sequentially <br><br>步驟必須按順序完成.","children":[{"content":"<input type=\"checkbox\"><br> Each step's deliverables are required for subsequent steps in the<br>waterfall method. <br><br>每個步驟的可交付成果是瀑布方法中後續步驟所必需的.","children":[],"payload":{"lines":"31,32"}}],"payload":{"lines":"30,31"}},{"content":"<input type=\"checkbox\"><br> Iterative Model Description <br><br>迭代模型描述.","children":[{"content":"<input type=\"checkbox\"><br> The iterative model is a faster approach that starts development by<br>implementing part of the software and eventually fully realizes it. <br><br>迭代模型是一種更快的方法，從實現軟體的一部分開始，並最終完全實現.","children":[],"payload":{"lines":"33,34"}}],"payload":{"lines":"32,33"}},{"content":"<input type=\"checkbox\"><br> Spiral Model Characteristics <br><br>螺旋模型特徵.","children":[{"content":"<input type=\"checkbox\"><br> The spiral model includes prototype development and the use of the<br>waterfall method, suitable for more complex and expensive projects. <br><br>螺旋模型包括原型的開發和瀑布方法的使用，適用於更複雜和更昂貴的項目.","children":[],"payload":{"lines":"35,36"}}],"payload":{"lines":"34,35"}},{"content":"<input type=\"checkbox\"><br> Susan's Decision on Models <br><br>蘇珊對模型的決策.","children":[{"content":"<input type=\"checkbox\"><br> Susan decided that the spiral model was not suitable for her project, as<br>the prototype could not meet customer requirements, and the iterative<br>model would provide too many versions of software that the client did<br>not need. <br><br>蘇珊決定螺旋模型不適用於她的項目，因為原型不能滿足客戶的要求，而迭代模型<br>將提供太多版本的軟體，客戶不需要這些迭代.","children":[],"payload":{"lines":"37,38"}}],"payload":{"lines":"36,37"}},{"content":"<input type=\"checkbox\"><br> Waterfall Model Implementation <br><br>瀑布模型實施.","children":[{"content":"<input type=\"checkbox\"><br> Susan decided to use the waterfall model for the project implementation,<br>meaning each phase of the SDLC must be completed before the project team<br>can move to the next phase. <br><br>蘇珊決定使用瀑布模型來實施一個項目，這意味著在專案團隊開始下一階段之前，<br>必須完成SDLC的每個階段.","children":[],"payload":{"lines":"39,40"}}],"payload":{"lines":"38,39"}},{"content":"<input type=\"checkbox\"><br> Software Development Life Cycle (SDLC) <br><br>軟體開發生命週期（SDLC）.","children":[{"content":"<input type=\"checkbox\"><br> SDLC is a software development process that includes the defined steps<br>for developing and completing software projects. <br><br>SDLC是一個軟體開發過程，包括開發和完成軟體專案的定義步驟.","children":[],"payload":{"lines":"41,42"}},{"content":"<input type=\"checkbox\"><br> SDLC serves as a blueprint for the entire project with six common<br>phases: requirements gathering and analysis, software design, coding and<br>implementation, testing, deployment, and maintenance. <br><br>SDLC是整個專案的藍圖，包括六個常見階段：需求收集與分析、軟體設計、編<br>碼與實施、測試、部署和維護.","children":[],"payload":{"lines":"42,43"}}],"payload":{"lines":"40,41"}},{"content":"<input type=\"checkbox\"><br> Project Manager's Role <br> 專案經理的角色.","children":[{"content":"<input type=\"checkbox\"><br> Project managers implement the SDLC process by following various models,<br>including waterfall, iterative, and spiral models. <br><br>專案經理透過遵循各種模型來實施SDLC流程，包括瀑布模型、迭代模型和螺旋<br>模型.","children":[],"payload":{"lines":"44,45"}}],"payload":{"lines":"43,44"}},{"content":"<input type=\"checkbox\"><br> Understanding the SDLC Process <br><br>了解SDLC過程.","children":[{"content":"<input type=\"checkbox\"><br> Before the project team provides instructions, it is essential to<br>understand each phase of the SDLC process. <br><br>在專案團隊提供指示之前，了解流程中的每個階段SDLC是至關重要的.","children":[],"payload":{"lines":"46,47"}}],"payload":{"lines":"45,46"}}],"payload":{"lines":"29,30"}},{"content":"<input type=\"checkbox\"><br> Overview of SDLC Stages <br> SDLC階段概述","children":[{"content":"<input type=\"checkbox\"><br> Stages in the Software Development Life Cycle (SDLC) <br><br>軟體開發生命週期(SDLC)的階段","children":[{"content":"<input type=\"checkbox\"><br> Phase 1: Requirements Gathering and Analysis <br><br>第1階段：需求收集和分析","children":[{"content":"<input type=\"checkbox\"><br> High-level leadership initiates project planning, and customers provide<br>requirements. <br> 高層管理開始專案規劃，客戶提供需求。","children":[],"payload":{"lines":"50,51"}},{"content":"<input type=\"checkbox\"><br> Analysis begins to determine project approach, deliverables, and<br>expected outcomes. <br><br>分析開始確定專案方法、可交付成果和預期結果。","children":[],"payload":{"lines":"51,52"}},{"content":"<input type=\"checkbox\"><br> Gathering business needs to identify software users and usage. <br><br>收集業務需求，以確定誰將使用該軟體以及如何使用該軟體。","children":[],"payload":{"lines":"52,53"}}],"payload":{"lines":"49,50"}},{"content":"<input type=\"checkbox\"><br> Phase 2: Software Design <br><br>第2階段：軟體設計","children":[{"content":"<input type=\"checkbox\"><br> Business architects create various designs based on requirements from<br>Phase 1. <br> 業務架構師根據第1階段收集的需求產生多種設計。","children":[],"payload":{"lines":"54,55"}},{"content":"<input type=\"checkbox\"><br> Each design is reviewed by internal stakeholders before selecting the<br>best option. <br><br>每個設計由內部利益相關者在設計文件中進行審查，然後選擇最佳設計。","children":[],"payload":{"lines":"55,56"}}],"payload":{"lines":"53,54"}},{"content":"<input type=\"checkbox\"><br> Phase 3: Coding and Implementation <br><br>第3階段：編碼和實現","children":[{"content":"<input type=\"checkbox\"><br> Implementation of the design occurs using the design documents from<br>Phase 2. <br> 根據第2階段的設計文件實現設計。","children":[],"payload":{"lines":"57,58"}},{"content":"<input type=\"checkbox\"><br> Code is produced, and testing ensures it meets specifications. <br><br>產生程式碼，並確保程式碼在測試後按規範工作。","children":[],"payload":{"lines":"58,59"}}],"payload":{"lines":"56,57"}},{"content":"<input type=\"checkbox\"><br> Phase 4: Deployment <br> 第4階段：部署","children":[{"content":"<input type=\"checkbox\"><br> The product is delivered to the customer. <br><br>產品交付給客戶。","children":[],"payload":{"lines":"60,61"}}],"payload":{"lines":"59,60"}},{"content":"<input type=\"checkbox\"><br> Phase 5: Maintenance <br> 第5階段：維護","children":[{"content":"<input type=\"checkbox\"><br> After deployment, customers may encounter technical issues. <br><br>在部署後，客戶可能會遇到技術問題。","children":[],"payload":{"lines":"62,63"}}],"payload":{"lines":"61,62"}},{"content":"<input type=\"checkbox\"><br> Susan's Understanding and Research <br><br>Susan的理解和研究","children":[{"content":"<input type=\"checkbox\"><br> Susan is prepared to guide her project team and collect requirements.<br><br> Susan準備向她的專案團隊提供指導並收集需求。","children":[],"payload":{"lines":"64,65"}},{"content":"<input type=\"checkbox\"><br> She decides to explore various SDLC methodologies. <br><br>她決定研究SDLC的各種方法。","children":[],"payload":{"lines":"65,66"}}],"payload":{"lines":"63,64"}},{"content":"<input type=\"checkbox\"><br> SDLC Process Models <br> SDLC流程模型","children":[{"content":"<input type=\"checkbox\"><br> Different models exist for completing each SDLC stage based on client<br>needs and project timelines. <br><br>根據客戶需求和專案時間長度，完成每個SDLC階段有不同模型。","children":[],"payload":{"lines":"67,68"}},{"content":"<input type=\"checkbox\"><br> Some models include Waterfall, Iterative, and Spiral models. <br><br>一些模型包括瀑布模型、迭代模型和螺旋模型。","children":[],"payload":{"lines":"68,69"}}],"payload":{"lines":"66,67"}},{"content":"<input type=\"checkbox\"><br> Waterfall Method <br> 瀑布方法","children":[{"content":"<input type=\"checkbox\"><br> A step-by-step approach where each step must be completed before the<br>next begins. <br><br>一種逐步方法，必須在開始下一步之前完成每個步驟。","children":[],"payload":{"lines":"70,71"}},{"content":"<input type=\"checkbox\"><br> Deliverables from each step are necessary for subsequent steps. <br><br>每個步驟的可交付成果是後續步驟所必需的。","children":[],"payload":{"lines":"71,72"}}],"payload":{"lines":"69,70"}},{"content":"<input type=\"checkbox\"><br> Iterative Model <br> 迭代模型","children":[{"content":"<input type=\"checkbox\"><br> A quicker method where development starts by implementing part of the<br>software. <br> 一種更快的方法，開發從實現軟體的一部分開始。","children":[],"payload":{"lines":"73,74"}},{"content":"<input type=\"checkbox\"><br> The process is repeated, developing new software in each iteration<br>without strict specifications. <br><br>重複實施過程，在每個迭代中開發新軟體。","children":[],"payload":{"lines":"74,75"}}],"payload":{"lines":"72,73"}},{"content":"<input type=\"checkbox\"><br> Spiral Model <br> 螺旋模型","children":[{"content":"<input type=\"checkbox\"><br> Combines prototyping and the Waterfall method for complex and costly<br>projects. <br><br>對於更複雜和昂貴的項目，結合原型開發和瀑布方法。","children":[],"payload":{"lines":"76,77"}},{"content":"<input type=\"checkbox\"><br> Prototyping is necessary before implementation begins. <br><br>在開始實施之前，原型是必需的。","children":[],"payload":{"lines":"77,78"}}],"payload":{"lines":"75,76"}},{"content":"<input type=\"checkbox\"><br> Susan's Decision on Models <br><br>Susan對模型的決定","children":[{"content":"<input type=\"checkbox\"><br> Susan concludes that the Spiral model is not suitable for her project.<br><br> Susan得出結論，螺旋模型不適合她的專案。","children":[],"payload":{"lines":"79,80"}},{"content":"<input type=\"checkbox\"><br> The prototyping cannot meet customer requirements, and the Iterative<br>model offers too many versions. <br><br>原型無法滿足客戶要求，而迭代模型","children":[],"payload":{"lines":"80,81"}}],"payload":{"lines":"78,79"}}],"payload":{"lines":"48,49"}}],"payload":{"lines":"47,48"}},{"content":"<input type=\"checkbox\"><br> Decision to Use Waterfall Model for Project Implementation <br><br>決定使用瀑布模型實施一個項目","children":[{"content":"<input type=\"checkbox\"><br> Software Development Life Cycle (SDLC) Overview <br><br>軟體開發生命週期（SDLC）概述","children":[{"content":"<input type=\"checkbox\"><br> Definition of SDLC <br> SDLC的定義","children":[],"payload":{"lines":"83,84"}},{"content":"<input type=\"checkbox\"><br> Stages of SDLC <br> SDLC的階段","children":[],"payload":{"lines":"84,85"}},{"content":"<input type=\"checkbox\"><br> Project Manager's Role <br> 專案經理的角色","children":[],"payload":{"lines":"85,86"}},{"content":"<input type=\"checkbox\"><br> Waterfall Model Explained <br> 瀑布模型解釋","children":[],"payload":{"lines":"86,87"}},{"content":"<input type=\"checkbox\"><br> Other Models <br> 其他模型","children":[],"payload":{"lines":"87,88"}},{"content":"<input type=\"checkbox\"><br> Model Selection <br> 模型選擇","children":[],"payload":{"lines":"88,89"}}],"payload":{"lines":"82,83"}}],"payload":{"lines":"81,82"}}]},null)</script>
+</body>
+</html>

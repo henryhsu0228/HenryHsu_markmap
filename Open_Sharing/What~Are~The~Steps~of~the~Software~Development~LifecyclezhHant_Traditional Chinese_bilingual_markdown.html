@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+<title>Markmap</title>
+<style>
+* {
+  margin: 0;
+  padding: 0;
+}
+#mindmap {
+  display: block;
+  width: 100vw;
+  height: 100vh;
+}
+</style>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/markmap-toolbar@0.17.2/dist/style.css">
+</head>
+<body><div class="controls" style="position: fixed; top: 10px; right: 10px;">
+                <select id="levelSelect" onchange="setExpandLevel(this.value)" style="padding: 5px;">
+                    <option value="1">Level 1</option>
+                    <option value="2" selected>Level 2</option>
+                    <option value="3">Level 3</option>
+                    <option value="4">Level 4</option>
+                    <option value="all">All</option>
+                </select>
+                <button id="saveButton" style="margin-left: 10px; padding: 5px;">Save Checked Items</button>
+                </div>
+                <style>
+                /* 基本背景設定 */
+                body, html, .svg-container {
+                    background-color: #f5e6d3 !important;  /* 溫和的米色背景 */
+                }
+
+                /* 文字樣式設定 */
+                text, .markmap-node text {
+                    fill: #2b2b2b !important;  /* 深灰色文字，比純黑色更柔和 */
+                    font-family: "Microsoft JhengHei", "微軟正黑體", sans-serif !important;
+                    font-weight: 900 !important;
+                    font-size: 15px !important;
+                    opacity: 1 !important;
+                    fill-opacity: 1 !important;
+                }
+
+                /* 強制設定所有 SVG 元素的透明度 */
+                svg * {
+                    opacity: 1 !important;
+                }
+
+                /* Markmap 節點和連接線 */
+                .markmap-node-circle {
+                    fill: #f8efe3 !important;  /* 稍淺的米色作為節點背景 */
+                    stroke: #b8977e !important;  /* 溫和的棕色邊框 */
+                }
+
+                .markmap-link {
+                    stroke: #967259 !important;  /* 溫和的棕色連接線 */
+                    stroke-width: 2px !important;
+                }
+
+                /* 控制項樣式 */
+                .controls {
+                    background-color: #f8efe3 !important;  /* 與節點背景相同的顏色 */
+                    border: 1px solid #d4c0a9 !important;
+                    box-shadow: 0 2px 4px rgba(139, 109, 82, 0.1) !important;
+                }
+
+                #levelSelect, #saveButton {
+                    background-color: #f8efe3 !important;
+                    color: #2b2b2b !important;
+                    border: 1px solid #d4c0a9 !important;
+                    font-weight: bold !important;
+                }
+
+                #levelSelect:hover, #saveButton:hover {
+                    background-color: #f0e4d4 !important;
+                }
+                </style>
+                <script>
+                function setExpandLevel(level) {
+                    if (!window.mm) return;
+                    function updateFoldState(node, depth) {
+                        if (!node) return;
+                        const shouldFold = level === "all" ? false : depth >= parseInt(level);
+                        if (!node.payload) node.payload = {};
+                        node.payload.fold = shouldFold;
+                        if (Array.isArray(node.children)) {
+                            node.children.forEach(child => updateFoldState(child, depth + 1));
+                        }
+                    }
+                    const data = window.mm.state.data;
+                    updateFoldState(data, 0);
+                    window.mm.setData(data);
+                    window.mm.fit();
+                }
+                </script>
+                <script>
+                document.addEventListener("DOMContentLoaded", () => {
+                    console.log("DOM fully loaded and parsed");
+                    
+                    setTimeout(() => {
+                        setExpandLevel("2");
+                    }, 100);
+
+                    const saveButton = document.getElementById("saveButton");
+                    if (saveButton) {
+                        saveButton.addEventListener("click", () => {
+                            const selectedItems = [];
+                            const processedNodes = new Set();
+
+                            function traverseNodes(node, level = 0) {
+                                if (processedNodes.has(node)) {
+                                    console.log(`Skipping already processed node: ${node.textContent.trim()}`);
+                                    return;
+                                }
+                                processedNodes.add(node);
+
+                                const rawText = node.textContent.trim();
+                                const checkbox = node.querySelector('foreignObject input[type="checkbox"]');
+                                
+                                console.log(`Processing node: ${rawText}`);
+                                console.log(`Node level: ${level}`);
+                                console.log(`Checkbox checked: ${checkbox && checkbox.checked}`);
+                                
+                                if (checkbox && checkbox.checked) {
+                                    const text = rawText.replace(/^\s*☐\s*/, '').trim();
+                                        const filteredText = text.replace(/[^一-龥぀-ヿa-zA-Z\s，。！？、：；（）【】《》""''~]+/g, "")
+                                        .replace(/\s+/g, ' ')  // 將多個空格合併為一個
+                                        .trim();  // 移除首尾空格
+
+                                    // 檢查是否包含中文和英文
+                                        const hasChinese = /[一-龥]/.test(filteredText);
+                                        const hasEnglish = /[a-zA-Z]/.test(filteredText);
+
+                                    // 如果同時包含中文和英文，在它們之間加入換行標籤
+                                        let formattedText = filteredText;
+                                        if (hasChinese && hasEnglish) {
+                                        // 找到英文和中文的分界點
+                                            const match = filteredText.match(/[a-zA-Z\s]+[一-龥]/);
+                                            if (match) {
+                                                const splitIndex = match.index + match[0].length - 1;
+                                                formattedText = filteredText.slice(0, splitIndex) + '<br>' + filteredText.slice(splitIndex);
+                                            }
+                                        }
+
+                                    selectedItems.push(
+                                        level === 0 ? `# ${formattedText}` : 
+                                        level === 1 ? `## ${formattedText}` : 
+                                        level === 2 ? `### ${formattedText}` :
+                                        level === 3 ? `#### ${formattedText}` :
+                                        `- ${formattedText}`
+                                    );
+                                    
+                                    console.log(`Selected node: ${formattedText}`);
+                                }
+
+                                // 獲取子節點並按視覺順序排序
+                                const parentG = node.closest('g');
+                                const childNodes = Array.from(document.querySelectorAll('.markmap-node'))
+                                    .filter(n => {
+                                        const g = n.closest('g');
+                                        if (!g) return false;
+                                        const path = g.getAttribute('data-path');
+                                        const parentPath = parentG.getAttribute('data-path');
+                                        return path && path.startsWith(parentPath + '.') && 
+                                               path.split('.').length === parentPath.split('.').length + 1;
+                                    })
+                                    .sort((a, b) => {
+                                        const gA = a.closest("g");
+                                        const gB = b.closest("g");
+                                        const transformA = gA.getAttribute("transform");
+                                        const transformB = gB.getAttribute("transform");
+                                        const [xA, yA] = transformA.match(/-?\d+\.?\d*/g).map(Number);
+                                        const [xB, yB] = transformB.match(/-?\d+\.?\d*/g).map(Number);
+                                        
+                                        // 先比較x座標（左右位置）
+                                        if (Math.abs(xA - xB) > 50) {
+                                            return xA - xB;
+                                        }
+                                        // x座標接近時，比較y座標（上下位置）
+                                        return yA - yB;
+                                    });
+
+                                console.log(`Found ${childNodes.length} child nodes`);
+
+                                childNodes.forEach(childNode => {
+                                    traverseNodes(childNode, level + 1);
+                                });
+                            }
+
+                            // 找到並排序第一層節點
+                            const firstLevelNodes = Array.from(document.querySelectorAll(".markmap-node"))
+                                .filter(node => {
+                                    const g = node.closest("g");
+                                    return g && g.getAttribute("data-path").split(".").length === 2;
+                                })
+                                .sort((a, b) => {
+                                    const transformA = a.closest("g").getAttribute("transform");
+                                    const transformB = b.closest("g").getAttribute("transform");
+                                    const xA = parseFloat(transformA.match(/translate\(([-\d.]+)/)[1]);
+                                    const xB = parseFloat(transformB.match(/translate\(([-\d.]+)/)[1]);
+                                    return xA - xB;
+                                });
+
+                            console.log(`Found ${firstLevelNodes.length} first-level nodes`);
+
+                            // 處理所有第一層節點
+                            firstLevelNodes.forEach(node => {
+                                traverseNodes(node, 1);  // 從第一層開始
+                            });
+
+                            if (selectedItems.length === 0) {
+                                alert('請先選擇要保存的項目！');
+                                return;
+                            }
+
+                            console.log("Selected items in order:");
+                            selectedItems.forEach((item, index) => {
+                                console.log(`${index + 1}. ${item}`);
+                            });
+
+                            const content = selectedItems.join('\n');
+                            saveFile(content, 'checked_items.md');
+                        });
+                    }
+                });
+
+                function saveFile(content, filename) {
+                    const blob = new Blob([content], { type: "text/plain" });
+                    const link = document.createElement("a");
+                    link.href = URL.createObjectURL(blob);
+                    link.download = filename;
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    URL.revokeObjectURL(link.href);
+                }
+                </script>
+<svg id="mindmap"></svg>
+<script src="https://cdn.jsdelivr.net/npm/d3@7.8.5/dist/d3.min.js"></script><script src="https://cdn.jsdelivr.net/npm/markmap-view@0.17.2/dist/browser/index.js"></script><script src="https://cdn.jsdelivr.net/npm/markmap-toolbar@0.17.2/dist/index.js"></script><script>((r) => {
+            setTimeout(r);
+          })(() => {
+  const { markmap, mm } = window;
+  const toolbar = new markmap.Toolbar();
+  toolbar.attach(mm);
+  const el = toolbar.render();
+  el.setAttribute("style", "position:absolute;bottom:20px;right:20px");
+  document.body.append(el);
+})</script><script>((getMarkmap, getOptions, root2, jsonOptions) => {
+              const markmap = getMarkmap();
+              window.mm = markmap.Markmap.create(
+                "svg#mindmap",
+                (getOptions || markmap.deriveOptions)(jsonOptions),
+                root2
+              );
+            })(() => window.markmap,null,{"content":"","children":[{"content":"<input type=\"checkbox\"> Title:","children":[{"content":"<input type=\"checkbox\">什麼是軟體開發生命週期的步驟<br>","children":[],"payload":{"lines":"1,2"}}],"payload":{"lines":"0,1"}},{"content":"<input type=\"checkbox\"><br> Software Development Life Cycle (SDLC) <br><br>軟體開發生命週期 (SDLC)","children":[{"content":"<input type=\"checkbox\"><br> Overview of SDLC <br> SDLC 的概述","children":[{"content":"<input type=\"checkbox\"><br> Definition and Importance <br> 定義和重要性","children":[{"content":"<input type=\"checkbox\"><br> SDLC defines the general steps taken by software development teams. <br><br>SDLC 定義了軟體開發團隊採取的一般步驟。","children":[],"payload":{"lines":"5,6"}},{"content":"<input type=\"checkbox\"><br> It outlines the responsibilities of team members at each stage. <br><br>它概述了團隊成員在每個階段的職責。","children":[],"payload":{"lines":"6,7"}},{"content":"<input type=\"checkbox\"><br> Some steps may overlap, but they typically define project phases. <br><br>某些步驟可能會重疊，但它們通常定義專案的階段。","children":[],"payload":{"lines":"7,8"}}],"payload":{"lines":"4,5"}},{"content":"<input type=\"checkbox\"><br> Steps in SDLC <br> SDLC 的步驟","children":[{"content":"<input type=\"checkbox\"><br> The first step is feasibility study. <br><br>第一個步驟是可行性研究。","children":[],"payload":{"lines":"9,10"}},{"content":"<input type=\"checkbox\"><br> The second step is requirements analysis. <br><br>第二步是需求分析。","children":[],"payload":{"lines":"10,11"}},{"content":"<input type=\"checkbox\"><br> The design phase follows the requirements analysis. <br><br>設計階段接著需求分析。","children":[],"payload":{"lines":"11,12"}},{"content":"<input type=\"checkbox\"><br> Coding is the next step, where developers generate the actual code. <br><br>編碼是下一步，開發人員生成實際代碼。","children":[],"payload":{"lines":"12,13"}},{"content":"<input type=\"checkbox\"><br> Testing comes after coding to ensure functionality. <br><br>測試在編碼之後進行，以確保功能正常。","children":[],"payload":{"lines":"13,14"}},{"content":"<input type=\"checkbox\"><br> Deployment follows successful testing, putting the code into production.<br><br> 部署在測試成功後進行，將代碼投入生產。","children":[],"payload":{"lines":"14,15"}},{"content":"<input type=\"checkbox\"><br> The final stage is maintenance, providing ongoing support. <br><br>最後一個階段是維護，提供持續的支援。","children":[],"payload":{"lines":"15,16"}}],"payload":{"lines":"8,9"}},{"content":"<input type=\"checkbox\"><br> Detailed Explanation of Each Step <br><br>每個步驟的詳細解釋","children":[{"content":"<input type=\"checkbox\"><br> Feasibility Study <br> 可行性研究","children":[{"content":"<input type=\"checkbox\"><br> The project team addresses key questions about project completion and<br>resource availability. <br><br>專案團隊解決有關專案完成和資源可用性的關鍵問題。","children":[],"payload":{"lines":"18,19"}},{"content":"<input type=\"checkbox\"><br> Decisions about whether to buy or build software are made at this stage.<br><br> 在此階段會做出關於購買還是建造軟體的決策。","children":[],"payload":{"lines":"19,20"}}],"payload":{"lines":"17,18"}},{"content":"<input type=\"checkbox\"><br> Requirements Analysis <br> 需求分析","children":[{"content":"<input type=\"checkbox\"><br> Analysts create a complete specification of system requirements. <br><br>分析師建立系統需求的完整規範。","children":[],"payload":{"lines":"21,22"}},{"content":"<input type=\"checkbox\"><br> This includes business rules and access permissions for different user<br>types. <br> 這包括業務規則和不同用戶類型的訪問權限。","children":[],"payload":{"lines":"22,23"}},{"content":"<input type=\"checkbox\"><br> Common use cases are examined to ensure the system meets user needs.<br><br> 檢查常見用例以確保系統能滿足用戶需求。","children":[],"payload":{"lines":"23,24"}},{"content":"<input type=\"checkbox\"><br> Sample reports are also important for driving data types into the<br>system. <br> 範例報告對於驅動系統中的數據類型也很重要。","children":[],"payload":{"lines":"24,25"}}],"payload":{"lines":"20,21"}}],"payload":{"lines":"16,17"}}],"payload":{"lines":"3,4"}}],"payload":{"lines":"2,3"}},{"content":"<input type=\"checkbox\"><br> Importance of Design Phase in Software Development <br><br>軟體開發中設計階段的重要性","children":[{"content":"<input type=\"checkbox\"><br> Overview of the Design Phase <br><br>設計階段概述","children":[{"content":"<input type=\"checkbox\"><br> The significance of detailed design to avoid costly rework <br><br>詳細設計的重要性以避免昂貴的返工","children":[{"content":"<input type=\"checkbox\"><br> Ensure client approval on requirements before the system work begins<br><br> 確保在系統工作開始之前獲得客戶對需求的正式批准.","children":[],"payload":{"lines":"28,29"}}],"payload":{"lines":"27,28"}}],"payload":{"lines":"26,27"}},{"content":"<input type=\"checkbox\"><br> Types of Design <br> 設計類型","children":[{"content":"<input type=\"checkbox\"><br> Logical and Physical Design <br><br>邏輯設計和物理設計","children":[{"content":"<input type=\"checkbox\"><br> Logical design focuses on how components fit together and the overall<br>hierarchy <br><br>邏輯設計著重於元件如何組合在一起及其總體層次結構.","children":[],"payload":{"lines":"31,32"}},{"content":"<input type=\"checkbox\"><br> Physical design includes detailed content, like database schemas and<br>field layouts <br><br>物理設計包括詳細內容，如資料庫模式和欄位佈局.","children":[],"payload":{"lines":"32,33"}}],"payload":{"lines":"30,31"}}],"payload":{"lines":"29,30"}},{"content":"<input type=\"checkbox\"><br> Review Process <br> 審查過程","children":[{"content":"<input type=\"checkbox\"><br> Involvement of Various Stakeholders <br><br>各利益相關者的參與","children":[{"content":"<input type=\"checkbox\"><br> Reviews depend on the company's size, including software development<br>management and architects <br><br>審查取決於公司的規模，包括軟體開發管理和架構師.","children":[],"payload":{"lines":"35,36"}},{"content":"<input type=\"checkbox\"><br> Operational staff check to ensure software can be operated and supported<br>effectively <br><br>操作人員檢查以確保軟體能夠有效運行和支持.","children":[],"payload":{"lines":"36,37"}}],"payload":{"lines":"34,35"}}],"payload":{"lines":"33,34"}},{"content":"<input type=\"checkbox\"><br> Coding Phase <br> 編碼階段","children":[{"content":"<input type=\"checkbox\"><br> Connection to Software Development <br><br>與軟體開發的關聯","children":[{"content":"<input type=\"checkbox\"><br> Programmers begin to write code to meet specific business requirements<br><br> 程式設計師開始編寫程式碼以滿足特定的業務需求.","children":[],"payload":{"lines":"39,40"}},{"content":"<input type=\"checkbox\"><br> Code is designed to fulfill specific requirements generated in earlier<br>steps <br> 程式碼旨在滿足早期步驟中產生的特定要求.","children":[],"payload":{"lines":"40,41"}}],"payload":{"lines":"38,39"}}],"payload":{"lines":"37,38"}},{"content":"<input type=\"checkbox\"><br> Testing and Demonstrations <br> 測試和演示","children":[{"content":"<input type=\"checkbox\"><br> Initiation of Unit Testing and Project Demonstrations <br><br>單元測試和專案演示的啟動","children":[{"content":"<input type=\"checkbox\"><br> Unit tests are established to ensure the system functions as expected<br><br> 建立單元測試以確保系統按預期運行.","children":[],"payload":{"lines":"43,44"}},{"content":"<input type=\"checkbox\"><br> Many projects will begin demonstrations for the client <br><br>許多專案將開始對客戶進行演示.","children":[],"payload":{"lines":"44,45"}}],"payload":{"lines":"42,43"}}],"payload":{"lines":"41,42"}}],"payload":{"lines":"25,26"}},{"content":"<input type=\"checkbox\"><br> Software Development Life Cycle (SDLC) <br><br>軟體開發生命週期 (SDLC)","children":[{"content":"<input type=\"checkbox\"><br> Overview of the Process <br> 過程概述","children":[{"content":"<input type=\"checkbox\"><br> The process involves a cyclical movement from one step to another with<br>feedback loops for adaptation. <br><br>該過程涉及從一個步驟移動到另一個步驟的循環運動，並有反饋循環以適應變化。","children":[],"payload":{"lines":"47,48"}},{"content":"<input type=\"checkbox\"><br> Failure at a specific step may require returning to the requirements<br>analysis phase for corrections. <br><br>在特定步驟中失敗可能需要返回需求分析階段進行修正。","children":[],"payload":{"lines":"48,49"}},{"content":"<input type=\"checkbox\"><br> The entire process repeats with major versions, adapting to changes or<br>new user needs. <br><br>整個過程在主要版本中重複，適應變化或新的用戶需求。","children":[],"payload":{"lines":"49,50"}}],"payload":{"lines":"46,47"}},{"content":"<input type=\"checkbox\"><br> Steps in the SDLC <br> SDLC中的步驟","children":[{"content":"<input type=\"checkbox\"><br> There are several different phases that help software development teams<br>plan their activities. <br><br>有多個不同的階段幫助軟體開發團隊規劃他們的活動。","children":[],"payload":{"lines":"51,52"}},{"content":"<input type=\"checkbox\"><br> Companies may add extra steps to meet specific needs for greater<br>success. <br><br>公司可能會添加額外的步驟以滿足特定需求以獲得更大的成功。","children":[],"payload":{"lines":"52,53"}},{"content":"<input type=\"checkbox\"><br> Some steps might be repeated to accommodate changes or failures. <br><br>某些步驟可能會重複以適應變更或失敗。","children":[],"payload":{"lines":"53,54"}}],"payload":{"lines":"50,51"}},{"content":"<input type=\"checkbox\"><br> Participation in the Process <br><br>參與過程","children":[{"content":"<input type=\"checkbox\"><br> Various stakeholders, including clients and testing personnel, are<br>involved in large development efforts. <br><br>包括客戶和測試人員在內的各種利益相關者參與大型開發工作。","children":[],"payload":{"lines":"55,56"}},{"content":"<input type=\"checkbox\"><br> Individuals in large companies are likely to be involved in some way in<br>this process. <br><br>在大公司工作的人很可能以某種方式參與這個過程。","children":[],"payload":{"lines":"56,57"}}],"payload":{"lines":"54,55"}},{"content":"<input type=\"checkbox\"><br> Conclusion <br> 結論","children":[{"content":"<input type=\"checkbox\"><br> Thank you for participating; see you next time! <br><br>感謝您的參與，我們下次見！","children":[],"payload":{"lines":"58,59"}},{"content":"<input type=\"checkbox\"><br> If you enjoyed the video, please like and subscribe for more content.<br><br> 如果您喜歡這個視頻，請點擊“喜歡”和訂閱以獲取更多內容。","children":[],"payload":{"lines":"59,60"}},{"content":"<input type=\"checkbox\"><br> You can also learn this course for free on Skillshare, link in the<br>description. <br><br>您還可以在Skillshare上免費學習該課程，鏈接在描述中。","children":[],"payload":{"lines":"60,61"}}],"payload":{"lines":"57,58"}}],"payload":{"lines":"45,46"}},{"content":"<input type=\"checkbox\"><br> General Steps of the Process <br><br>過程的一般步驟","children":[{"content":"<input type=\"checkbox\"><br> Step 1: Feasibility Study <br><br>第一步：可行性研究","children":[{"content":"<input type=\"checkbox\"><br> The project team will seek to answer key questions regarding the<br>feasibility of the project, such as whether it can be completed on time,<br>within budget, and whether they have the internal expertise to execute<br>it. <br><br>專案團隊將希望回答一些關鍵問題，例如，此時該專案是否可以按時完成？是否可<br>以在為該特定專案預留的現有預算內以及現有人員的情況下完成？您是否擁有內部<br>專業知識來完成此類專案，或您將不得不僱用承包商？","children":[{"content":"<input type=\"checkbox\"><br> Key decisions include whether to build in-house or purchase a software<br>package. <br> 這時做出的另一個關鍵決定是購買還是構建的決策。","children":[],"payload":{"lines":"64,65"}}],"payload":{"lines":"63,64"}}],"payload":{"lines":"62,63"}},{"content":"<input type=\"checkbox\"><br> Step 2: Requirements Analysis <br><br>第二步：需求分析","children":[{"content":"<input type=\"checkbox\"><br> Analysts will create a complete requirements specification, including<br>business rules and security roles for the system, as well as access for<br>different types of users. <br><br>分析師將建立完整的需求規範，其中包括系統安全角色的業務規則以及允許哪些不<br>同類型的人員對系統進行特定訪問。","children":[{"content":"<input type=\"checkbox\"><br> Use cases will be reviewed to ensure the system meets user needs, along<br>with sample design screens and reports. <br><br>您將查看用例，即人們將如何使用系統的常見場景，並產生範例設計畫面，與潛在<br>使用者一起瀏覽，以確保系統能夠滿足他們的需求。","children":[],"payload":{"lines":"67,68"}}],"payload":{"lines":"66,67"}}],"payload":{"lines":"65,66"}},{"content":"<input type=\"checkbox\"><br> Step 3: Design Phase <br> 第三步：設計階段","children":[{"content":"<input type=\"checkbox\"><br> It is crucial to ensure that no details are overlooked before moving to<br>the coding or operational phase, as any missed data details could lead<br>to costly rework. <br><br>在進入編碼或操作階段之前，確保不會忽略任何細節很重要，如果您發現遺漏了一<br>些數據詳細信息，則返工和重新設計將變得非常昂貴。","children":[{"content":"<input type=\"checkbox\"><br> Requirements must receive formal approval from the client before work on<br>the system begins. <br><br>這些需求需要在系統工作開始之前得到客戶的正式批准。","children":[],"payload":{"lines":"70,71"}}],"payload":{"lines":"69,70"}}],"payload":{"lines":"68,69"}}],"payload":{"lines":"61,62"}},{"content":"<input type=\"checkbox\"><br> Design Phase in Software Development Life Cycle <br><br>軟體開發生命週期中的設計階段","children":[{"content":"<input type=\"checkbox\"><br> Overview of Design Phase <br> 設計階段概述","children":[{"content":"<input type=\"checkbox\"><br> In this phase, software designers map detailed requirements and<br>categorize them into two main design types: logical design and physical<br>design. <br><br>在此階段，軟體設計人員將映射詳細需求，並將其分為兩種主要設計類型：邏輯設<br>計和物理設計。","children":[],"payload":{"lines":"73,74"}},{"content":"<input type=\"checkbox\"><br> Logical design refers to how general components are combined and the<br>overall hierarchy of the design. <br><br>邏輯設計是指通用元件如何組合在一起以及設計的總體層次結構。","children":[],"payload":{"lines":"74,75"}},{"content":"<input type=\"checkbox\"><br> Physical design involves detailed content, such as database schemas and<br>the layout of fields and tables in the database according to their<br>relationships. <br><br>物理設計涉及詳細內容，例如資料庫模式和根據其關係佈局資料庫中的各個欄位和<br>表格。","children":[],"payload":{"lines":"75,76"}},{"content":"<input type=\"checkbox\"><br> The designs will be reviewed by various departments depending on the<br>company's size, and if there is an enterprise architecture, software<br>development management and enterprise architects will definitely review<br>them. <br><br>這些設計將由各個部門進行審查，這取決於公司的規模，但如果有企業架構，則軟<br>體開發管理和企業架構師肯定會對其進行審查。","children":[],"payload":{"lines":"76,77"}},{"content":"<input type=\"checkbox\"><br> Large companies possess this type of capability, and operators will also<br>check to ensure they can operate the software and support it<br>effectively, and clients will review the designs to ensure everything<br>has been considered. <br><br>大公司擁有這種類型的能力，操作人員也會檢查，以確保他們可以操作軟體並有效<br>地支援它，客戶也會審查這些設計，以確保一切都已考慮在內。","children":[],"payload":{"lines":"77,78"}}],"payload":{"lines":"72,73"}},{"content":"<input type=\"checkbox\"><br> Coding Phase in Software Development Life Cycle <br><br>軟體開發生命週期中的編碼階段","children":[{"content":"<input type=\"checkbox\"><br> This phase is typically associated with software development where<br>programmers begin writing code to meet specific business needs. <br><br>這一階段通常與軟體開發相關，程式設計師將開始編寫程式碼以滿足特定的業務需<br>求。","children":[],"payload":{"lines":"79,80"}},{"content":"<input type=\"checkbox\"><br> The design of the code is aimed at fulfilling the specific requirements<br>generated in the earlier steps. <br><br>程式碼的設計旨在滿足早期步驟中產生的特定要求。","children":[],"payload":{"lines":"80,81"}},{"content":"<input type=\"checkbox\"><br> Programmers will seek to reuse code from previous projects to save time.<br><br> 程式設計師將尋求重用先前專案中的程式碼以節省時間。","children":[],"payload":{"lines":"81,82"}},{"content":"<input type=\"checkbox\"><br> Unit testing will also begin to ensure that when programmers write<br>individual code segments, they establish runnable tests to automate the<br>assurance that the system operates as expected. <br><br>此時還將開始單元測試，以便當程式設計師編寫單獨的程式碼片段時，他們將建立<br>可以運行的測試以自動化的方式確保系統按預期運行。","children":[],"payload":{"lines":"82,83"}},{"content":"<input type=\"checkbox\"><br> They will layer these tests from bottom to top as their build<br>specifications to enable retesting of the system at any time. <br><br>他們將從下至上將這些測試分層作為他們的建構規範，以便他們可以隨時重新測試<br>系統。","children":[],"payload":{"lines":"83,84"}},{"content":"<input type=\"checkbox\"><br> Many projects will also initiate a cycle, moving from one step to<br>another, with a feedback loop to adapt to changes and/or failures. <br><br>許多專案也將開始進行一個循環，該過程從一個步驟移動到另一個步驟，並有一個<br>反饋循環來適應變化和/或失敗。","children":[],"payload":{"lines":"84,85"}},{"content":"<input type=\"checkbox\"><br> If a failure occurs at a specific step, issues may arise that require a<br>return to the requirements analysis phase for fixes. <br><br>如果在某個特定步驟中失敗，則可能會遇到問題，並需要返回需求分析階段進行修<br>復。","children":[],"payload":{"lines":"85,86"}},{"content":"<input type=\"checkbox\"><br> The entire process will also repeat in major releases, as once you<br>operate, many users or your business will undergo changes, prompting the<br>need for new features to be developed for the system in the next<br>version. <br><br>整個過程也會在主要版本中重複，因此一旦您進行操作，許多用戶或您的業務將會<br>發生變化，他們預期需要為系統開發新功能，因此整個過程將在下一個版本中重新<br>開始。","children":[],"payload":{"lines":"86,87"}}],"payload":{"lines":"78,79"}},{"content":"<input type=\"checkbox\"><br> Conclusion of SDLC","children":[],"payload":{"lines":"87,88"}}],"payload":{"lines":"71,72"}},{"content":"<input type=\"checkbox\"><br> Multiple Steps and Phases in Software Development <br><br>軟體開發中的多個步驟和階段.","children":[{"content":"<input type=\"checkbox\"><br> Steps Help Teams Plan Their Activities <br><br>步驟幫助團隊規劃他們的活動.","children":[{"content":"<input type=\"checkbox\"><br> Additional Steps for Specific Needs <br><br>為特定需求添加額外步驟.","children":[{"content":"<input type=\"checkbox\"><br> Companies may find these processes lead to greater success. <br><br>公司可能會發現這些流程可以帶來更大的成功.","children":[],"payload":{"lines":"91,92"}}],"payload":{"lines":"90,91"}},{"content":"<input type=\"checkbox\"><br> Repeating Steps for Changes or Failures <br><br>為了適應變更或失敗而重複步驟.","children":[{"content":"<input type=\"checkbox\"><br> Even non-developers may need to revert to earlier stages. <br><br>即使不是開發人員，您也可能需要回滾到之前的階段.","children":[],"payload":{"lines":"93,94"}}],"payload":{"lines":"92,93"}},{"content":"<input type=\"checkbox\"><br> Involvement of Various Stakeholders <br><br>各種利益相關者的參與.","children":[{"content":"<input type=\"checkbox\"><br> Companies engaged in large development work involve clients and<br>personnel from testing operations and product teams. <br><br>進行大型開發工作的公司涉及客戶以及來自測試運營和產品團隊的人員.","children":[],"payload":{"lines":"95,96"}}],"payload":{"lines":"94,95"}},{"content":"<input type=\"checkbox\"><br> Participation in the Process <br><br>參與該過程.","children":[{"content":"<input type=\"checkbox\"><br> If you work in a large company, you are likely to participate in some<br>way. <br><br>如果您在一家大公司工作，您很可能會以某種方式參與這個過程.","children":[],"payload":{"lines":"97,98"}}],"payload":{"lines":"96,97"}},{"content":"<input type=\"checkbox\"><br> Conclusion and Thanks <br> 總結與感謝.","children":[{"content":"<input type=\"checkbox\"><br> This concludes the lesson, thank you, and see you in the next class.<br><br> 這就是本課的內容，非常感謝，我們下節課再見.","children":[],"payload":{"lines":"99,100"}},{"content":"<input type=\"checkbox\"><br> If you liked the video, please click the \"like\" button. <br><br>如果您喜歡該視頻，請點擊“喜歡”按鈕.","children":[],"payload":{"lines":"100,101"}},{"content":"<input type=\"checkbox\"><br> To see more content like this, click the subscribe button. <br><br>要查看更多此類內容，請點擊訂閱按鈕.","children":[],"payload":{"lines":"101,102"}},{"content":"<input type=\"checkbox\"><br> You can also learn this course for free on Skillshare, link in the<br>description. <br> 您還可以在 Skillshare<br>上免費學習該課程，鏈接位於描述中.","children":[],"payload":{"lines":"102,103"}}],"payload":{"lines":"98,99"}}],"payload":{"lines":"89,90"}}],"payload":{"lines":"88,89"}}]},null)</script>
+</body>
+</html>
