@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>如何申請 Google OAuth 2.0 Client ID 和 Client Secret</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 20px;
+            background-color: #f4f4f4;
+        }
+        h1, h2 {
+            color: #333;
+        }
+        pre {
+            background-color: #eee;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        a {
+            color: #007BFF;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>如何申請 Google OAuth 2.0 Client ID 和 Client Secret</h1>
+    <p>感謝您使用我們的應用程式！為了使用 Google 的 API，您需要申請自己的 Client ID 和 Client Secret。請按照以下步驟操作：</p>
+
+    <h2>步驟 1: 創建 Google Cloud Project</h2>
+    <ol>
+        <li>訪問 <a href="https://console.cloud.google.com/" target="_blank">Google Cloud Console</a>。</li>
+        <li>登錄您的 Google 帳戶。</li>
+        <li>點擊左上角的「選擇專案」，然後點擊「新建專案」。</li>
+        <li>為您的專案命名，然後點擊「創建」。</li>
+    </ol>
+
+    <h2>步驟 2: 啟用 API</h2>
+    <ol>
+        <li>在專案中，導航到「API 和服務」>「庫」。</li>
+        <li>啟用您需要的 API，例如 Google People API 或 Google Drive API。</li>
+    </ol>
+
+    <h2>步驟 3: 設置 OAuth 2.0 憑證</h2>
+    <ol>
+        <li>在「API 和服務」>「憑證」中，點擊「創建憑證」並選擇「OAuth 客戶端 ID」。</li>
+        <li>選擇應用程式類型（例如 Web 應用程式）。</li>
+        <li>設置授權的重定向 URI，例如 <code>http://localhost:8080/oauth2callback</code>。</li>
+        <li>點擊「創建」。</li>
+    </ol>
+
+    <h2>步驟 4: 獲取 Client ID 和 Client Secret</h2>
+    <p>創建憑證後，您將獲得 Client ID 和 Client Secret。請妥善保存這些信息，因為您將在應用程式中使用它們。</p>
+
+    <h2>步驟 5: 設置環境變數</h2>
+    <p>在您的系統中設置環境變數，以便應用程式可以讀取這些憑證：</p>
+    <pre>
+# 在 Windows 中
+set GOOGLE_CLIENT_ID=your_client_id_here
+set GOOGLE_CLIENT_SECRET=your_client_secret_here
+
+# 在 Linux 或 macOS 中
+export GOOGLE_CLIENT_ID=your_client_id_here
+export GOOGLE_CLIENT_SECRET=your_client_secret_here
+    </pre>
+
+    <h2>完成</h2>
+    <p>現在您已經成功申請了自己的 Google OAuth 2.0 Client ID 和 Client Secret，您可以使用這些憑證來運行我們的應用程式！</p>
+
+    <footer>
+        <p>如有任何問題，請聯繫我們的支持團隊。</p>
+    </footer>
+
+</body>
+</html>

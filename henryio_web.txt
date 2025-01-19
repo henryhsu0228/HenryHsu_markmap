@@ -24,3 +24,5 @@ https://henryhsu0228.github.io/HenryHsu_markmap/Open_Sharing/What~is~a~Software~
 實現步驟, 感謝 Destin Learning 的貢獻
 https://henryhsu0228.github.io/HenryHsu_markmap/Open_Sharing/What~Are~The~Steps~of~the~Software~Development~LifecyclezhHant_Traditional_Chinese_bilingual_markdown.html
 
+
+https://henryhsu0228.github.io/HenryHsu_markmap/Open_Sharing/index.html
